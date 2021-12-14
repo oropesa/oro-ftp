@@ -1,6 +1,6 @@
 {
   "name": "oro-ftp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Class OroFtp is a wrapper of promise-ftp to work as promises async/await.",
   "main": "index.js",
   "scripts": {

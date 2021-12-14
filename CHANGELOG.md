@@ -1,3 +1,6 @@
+## 1.0.2 / 2021-12-14
+* Fixed by default `ftpConfig.readyTimeout` is `3000` miliseconds.
+
 ## 1.0.1 / 2021-12-14
 * Fixed and improved `Readme`.
 

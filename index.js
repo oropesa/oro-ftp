@@ -25,7 +25,7 @@ class OroFtp {
             delete this.#ftpConfig.readyTimeout;
         }
 
-        this.#ftpConfig.connTimeout === undefined && ( this.#ftpConfig.readyTimeout = 3000 );
+        this.#ftpConfig.connTimeout === undefined && ( this.#ftpConfig.connTimeout = 3000 );
         this.#ftpConfig.disconnectWhenError === undefined && ( this.#ftpConfig.disconnectWhenError = true );
     }
 
