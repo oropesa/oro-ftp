@@ -1,3 +1,6 @@
+## 1.0.1 / 2021-12-14
+* Fixed and improved `Readme`.
+
 ## 1.0.0 / 2021-12-14
 * Added `MIT License`.
 * Added _unit testing_ `Jest`.

@@ -102,6 +102,22 @@ describe('list OFtp', () => {
         expect( response.list[ 0 ].path ).toBe( 'test/python-copy2.pdf' );
         expect( response.list[ 0 ].type ).toBe( '-' );
 
+        let fileKeys = Object.keys( response.list[ 0 ] );
+        expect( fileKeys.includes( 'name' ) ).toBe( true );
+        expect( fileKeys.includes( 'path' ) ).toBe( true );
+        expect( fileKeys.includes( 'type' ) ).toBe( true );
+        expect( fileKeys.includes( 'date' ) ).toBe( true );
+        expect( fileKeys.includes( 'size' ) ).toBe( true );
+        expect( fileKeys.includes( 'rights' ) ).toBe( true );
+        expect( fileKeys.includes( 'owner' ) ).toBe( true );
+        expect( fileKeys.includes( 'group' ) ).toBe( true );
+
+        let rightKeys = Object.keys( response.list[ 0 ].rights );
+
+        expect( rightKeys.includes( 'user' ) ).toBe( true );
+        expect( rightKeys.includes( 'group' ) ).toBe( true );
+        expect( rightKeys.includes( 'other' ) ).toBe( true );
+
         await ftpClient.disconnect();
     } );
 });
