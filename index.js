@@ -43,8 +43,7 @@ class OroFtp {
                 cloneConfig.password && (cloneConfig.password = new Array( cloneConfig.password.length ).fill( '*' ).join( '' ));
                 let errArray = err.toString().split( '\r\n' );
                 let tryAgain = errArray[ 0 ] !== 'Error: Login or password incorrect!';
-                return Ofn.setResponseKO( `FTP Connect failed: ${errArray[ 0 ]}.`,
-                    { ftpConfig: cloneConfig, ftpError: errArray }, tryAgain )
+                return Ofn.setResponseKO( `FTP Connect failed: ${errArray[ 0 ]}.`, { ftpConfig: cloneConfig, ftpError: errArray }, tryAgain )
             } );
     }
 
@@ -58,13 +57,10 @@ class OroFtp {
 
         return await this.#ftpClient.put( filepathFrom, filepathTo )
             .then( data =>  {
-                return Ofn.setResponseOK( {
-                    filename: Ofn.getFilenameByPath( filepathTo ),
-                    filepath: filepathTo
-                } );
+                return Ofn.setResponseOK( { filename: Ofn.getFilenameByPath( filepathTo ), filepath: filepathTo } );
             } )
-            .catch( err => {
-                this.#ftpConfig.disconnectWhenError && ( this.disconnect() );
+            .catch( async err => {
+                this.#ftpConfig.disconnectWhenError && ( await this.disconnect() );
                 let errArray = err.toString().split( '\r\n' );
                 return Ofn.setResponseKO( `FTP Upload failed: ${errArray[0]}.`, { ftp: errArray } );
             } );
@@ -84,17 +80,16 @@ class OroFtp {
                 data.pipe( fileStream );
 
                 let end = new Promise( ( resolve, reject ) => {
-                    data.on( 'end', () => resolve( Ofn.setResponseOK( {
-                        filename: Ofn.getFilenameByPath( filepathTo ),
-                        filepath: Ofn.sanitizePath( filepathTo )
-                    } ) ) );
+                    data.on( 'end', () => resolve(
+                        Ofn.setResponseOK( { filename: Ofn.getFilenameByPath( filepathTo ), filepath: Ofn.sanitizePath( filepathTo ) } )
+                    ) );
                     fileStream.on( 'error', ( err ) => reject( Ofn.setResponseKO( `FTP Download To failed: ${err.toString()}.`, err ) ) );
                 } );
 
                 return await end.catch( e => e );
             } )
-            .catch( err => {
-                this.#ftpConfig.disconnectWhenError && ( this.disconnect() );
+            .catch( async err => {
+                this.#ftpConfig.disconnectWhenError && ( await this.disconnect() );
                 let errArray = err.toString().split( '\r\n' );
                 return Ofn.setResponseKO( `FTP Download failed: ${errArray[0]}.`, { ftp: errArray } )
             } );
@@ -124,8 +119,8 @@ class OroFtp {
 
                 return Ofn.setResponseOK( { count: files.length, list: files } );
             } )
-            .catch( err => {
-                this.#ftpConfig.disconnectWhenError && ( this.disconnect() );
+            .catch( async err => {
+                this.#ftpConfig.disconnectWhenError && ( await this.disconnect() );
                 let errArray = err.toString().split( '\r\n' );
                 return Ofn.setResponseKO( `FTP List failed: ${errArray[0]}.`, { ftp: errArray } );
             } );
@@ -134,14 +129,10 @@ class OroFtp {
     async move( filepathFrom, filepathTo ) {
         return await this.#ftpClient.rename( filepathFrom, filepathTo )
             .then( () =>  {
-                return Ofn.setResponseOK( {
-                    filename: Ofn.getFilenameByPath( filepathTo ),
-                    filepath: filepathTo,
-                    filepathFrom
-                } );
+                return Ofn.setResponseOK( { filename: Ofn.getFilenameByPath( filepathTo ), filepath: filepathTo, filepathFrom } );
             } )
-            .catch( err => {
-                this.#ftpConfig.disconnectWhenError && ( this.disconnect() );
+            .catch( async err => {
+                this.#ftpConfig.disconnectWhenError && ( await this.disconnect() );
                 let errArray = err.toString().split( '\r\n' );
                 return Ofn.setResponseKO( `FTP Move failed: ${errArray[0]}.`, { filepathFrom, filepathTo, ftp: errArray } );
             } );
@@ -150,23 +141,20 @@ class OroFtp {
     async delete( filepathFrom, strict = false ) {
         return await this.#ftpClient.delete( filepathFrom )
             .then( () =>  {
-                return Ofn.setResponseOK( 'deleted successfully', {
-                    filepath: filepathFrom,
-                    filename: Ofn.getFilenameByPath( filepathFrom )
-                } );
+                return Ofn.setResponseOK( 'deleted successfully', { filepath: filepathFrom, filename: Ofn.getFilenameByPath( filepathFrom ) } );
             } )
-            .catch( err => {
+            .catch( async err => {
                 let errArray = err.toString().split( '\r\n' );
                 if( ! strict && errArray[0] === 'Error: File not found' ) {
                     return Ofn.setResponseOK( `file not found`, { filepath: filepathFrom, filename: Ofn.getFilenameByPath( filepathFrom ) } )
                 }
 
-                this.#ftpConfig.disconnectWhenError && ( this.disconnect() );
+                this.#ftpConfig.disconnectWhenError && ( await this.disconnect() );
                 return Ofn.setResponseKO( `FTP Delete failed: ${errArray[0]}.`, { filepath: filepathFrom, ftp: errArray } )
             } );
     }
 
-    async exists( filepathFrom ) {
+    async exists( filepathFrom, disconnectWhenError ) {
         let filename = Ofn.getFilenameByPath( filepathFrom );
         return await this.#ftpClient.list( Ofn.getFolderByPath( filepathFrom ) )
             .then( data => {
@@ -177,56 +165,53 @@ class OroFtp {
                     break;
                 }
 
-                let response = Ofn.setResponseOK( {
-                    filepath: filepathFrom,
-                    filename: Ofn.getFilenameByPath( filepathFrom )
-                } );
+                let response = Ofn.setResponseOK( { filepath: filepathFrom, filename: Ofn.getFilenameByPath( filepathFrom ) } );
 
                 files[ 0 ] && ( response.type = files[ 0 ].type );
                 response.status = !! files[ 0 ];
                 return response;
             } )
-            .catch( err => {
-                this.#ftpConfig.disconnectWhenError && ( this.disconnect() );
+            .catch( async err => {
+                Ofn.isBoolean( disconnectWhenError ) && disconnectWhenError && ( await this.disconnect() );
+                ! Ofn.isBoolean( disconnectWhenError ) && this.#ftpConfig.disconnectWhenError && ( await this.disconnect() );
                 let errArray = err.toString().split( '\r\n' );
                 return Ofn.setResponseKO( `FTP Exists failed: ${errArray[0]}.`, { filepath: filepathFrom, ftp: errArray } );
             } );
     }
 
     async mkdir( folder, recursive = false, strict = false ) {
+        const response = await this.exists( folder, false );
+        if( response.status && response.type === 'd' ) {
+            return strict ?
+                Ofn.setResponseKO( `FTP Mkdir failed: Error: EEXIST: folder already exists, ${folder}`, { folder } ) :
+                Ofn.setResponseOK( 'Folder already exists.', { folderpath: folder, foldername: Ofn.getFilenameByPath( folder ) } );
+        }
+
+        if( ! recursive && Ofn.getFolderByPath( folder ).length ) {
+            const response = await this.exists( Ofn.getFolderByPath( folder ), false );
+            if( ! response.status ) {
+                return Ofn.setResponseKO( `FTP Mkdir failed: Error: ENOENT: no such directory, ${Ofn.getFolderByPath( folder )}`, { folder } );
+            }
+        }
+
         return await this.#ftpClient.mkdir( folder, recursive )
-            .then( () => Ofn.setResponseOK( {
-                folderpath: folder,
-                foldername: Ofn.getFilenameByPath( folder ),
-            } ) )
-            .catch( err => {
+            .then( () => Ofn.setResponseOK( { folderpath: folder, foldername: Ofn.getFilenameByPath( folder ) } ) )
+            .catch( async err => {
                 let errArray = err.toString().split( '\r\n' );
-                if( ! strict && errArray[ 0 ].match( /(Error: EEXIST: file already exists,)/ ) ) {
-                    return Ofn.setResponseOK( 'Folder already exists.', {
-                        folderpath: folder,
-                        foldername: Ofn.getFilenameByPath( folder ),
-                    } )
-                }
-                this.#ftpConfig.disconnectWhenError && ( this.disconnect() );
+                this.#ftpConfig.disconnectWhenError && ( await this.disconnect() );
                 return Ofn.setResponseKO( `FTP Mkdir failed: ${errArray[0]}.`, { folder, ftp: errArray } );
             } );
     }
 
     async rmdir( folder, strict = false ) {
         return await this.#ftpClient.rmdir( folder )
-            .then( () => Ofn.setResponseOK( {
-                folderpath: folder,
-                foldername: Ofn.getFilenameByPath( folder ),
-            } ) )
-            .catch( err => {
+            .then( () => Ofn.setResponseOK( { folderpath: folder, foldername: Ofn.getFilenameByPath( folder ) } ) )
+            .catch( async err => {
                 let errArray = err.toString().split( '\r\n' );
                 if( ! strict && errArray[ 0 ].match( /(Error: ENOENT: no such file or directory,)/ ) ) {
-                    return Ofn.setResponseOK( `Folder not found.`, {
-                        folderpath: folder,
-                        foldername: Ofn.getFilenameByPath( folder ),
-                    } )
+                    return Ofn.setResponseOK( `Folder not found.`, { folderpath: folder, foldername: Ofn.getFilenameByPath( folder ) } )
                 }
-                this.#ftpConfig.disconnectWhenError && ( this.disconnect() );
+                this.#ftpConfig.disconnectWhenError && ( await this.disconnect() );
                 return Ofn.setResponseKO( `FTP Rmdir failed: ${errArray[0]}.`, { folder, ftp: errArray } );
             } );
     }

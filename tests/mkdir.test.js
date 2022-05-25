@@ -64,7 +64,7 @@ describe('mkdir OFtp', () => {
         let response = await ftpClient.mkdir( 'test', false, true );
 
         expect( response.status ).toBe( false );
-        expect( response.error.msg ).toMatch( /(FTP Mkdir failed: Error: EEXIST: file already exists,)/ )
+        expect( response.error.msg ).toMatch( /(FTP Mkdir failed: Error: EEXIST: folder already exists,)/ )
     } );
 
     test( 'mkdir folder not recursive', async () => {
@@ -74,7 +74,7 @@ describe('mkdir OFtp', () => {
         let response = await ftpClient.mkdir( 'chacho/loco/tio' );
 
         expect( response.status ).toBe( false );
-        expect( response.error.msg ).toMatch( /(FTP Mkdir failed: Error: ENOENT: no such file or directory,)/ )
+        expect( response.error.msg ).toMatch( /(FTP Mkdir failed: Error: ENOENT: no such directory,)/ )
     } );
 
     test( 'mkdir folder recursive', async () => {

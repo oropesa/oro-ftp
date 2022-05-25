@@ -37,7 +37,7 @@ console.log( ftpUpload );
 * [await .list( folder = '', filters = {} )](#await-list-folder---filters---)
 * [await .move( filepathFrom, filepathTo )](#await-move-filepathfrom-filepathto-)
 * [await .delete( filepathFrom, strict = false )](#await-delete-filepathfrom-strict--false-)
-* [await .exists( filepathFrom )](#await-exists-filepathfrom-)
+* [await .exists( filepathFrom, disconnectWhenError = undefined )](#await-exists-filepathfrom-)
 * [await .mkdir( folder, recursive = false, strict = false )](#await-mkdir-folder-recursive--false-strict--false-)
 * [await .rmdir( folder, strict = false )](#await-rmdir-folder-strict--false-)
 
@@ -229,7 +229,7 @@ console.log( deleted );
 ftpClient.disconnect();
 ```
 
-### await .exists( filepathFrom )
+### await .exists( filepathFrom, disconnectWhenError = undefined )
 
 ```js
 const ftpClient = new OFtp( config );
