@@ -1,3 +1,7 @@
+## 1.0.4 / 2022-06-21
+* Updated lib `oro-functions` to `v1.1.6`.
+* Updated lib-dev `jest` to `v28.1.1`.
+
 ## 1.0.3 / 2022-05-25
 * Updated lib `fs-extra` to `v10.1.0`.
 * Updated lib `oro-functions` to `v1.1.4`.

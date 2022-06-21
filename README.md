@@ -48,7 +48,7 @@ On the construct, you can pass the server config data. You can also do it in `.c
 In addition, `config` has a new param `disconnectWhenError` default `true`, so when an error happens the connection close automatically.
 
 ```js
-const OFtp = require( 'oro-sftp' );
+const OFtp = require( 'oro-ftp' );
 const config = {
     host: 'custom-server.com',
     port: 21,

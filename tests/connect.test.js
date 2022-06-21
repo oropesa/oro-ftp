@@ -1,6 +1,7 @@
 const OFtp = require( '../index' );
-const fsExtra = require( 'fs-extra' );
 const FtpSrv = require( 'ftp-srv' );
+const fsExtra = require( 'fs-extra' );
+const Ofn = require( 'oro-functions' );
 
 //
 
@@ -37,7 +38,7 @@ describe('get OFtp parent clientFTP', () => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         let clientFTP = ftpClient.getClient();
-        expect( clientFTP.constructor.name ).toBe( 'PromiseFtp' );
+        expect( Ofn.type( clientFTP, true ) ).toBe( 'PromiseFtp' );
     } );
 });
 
