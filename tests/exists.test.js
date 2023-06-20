@@ -4,13 +4,22 @@ const FtpSrv = require( 'ftp-srv' );
 
 //
 
-const FTPCONFIG_DEFAULT = { protocol: 'ftp', host: '127.0.0.1', pasv_url: '0.0.0.0', port: 33333, user: 'chacho', password: 'loco' };
+const FTPCONFIG_DEFAULT = {
+    protocol: 'ftp',
+    host: '127.0.0.1',
+    pasv_url: '0.0.0.0',
+    port: 33333,
+    user: 'chacho',
+    password: 'loco'
+};
 
-let serverPath = `${__dirname}/srv-exists`;
+const serverPath = `${__dirname}/srv-exists`;
 let ftpServer;
 
-beforeAll(async () => {
-    if( await fsExtra.exists( serverPath ) ) { await fsExtra.rmdir( serverPath, { recursive: true } ); }
+beforeAll( async() => {
+    if( await fsExtra.exists( serverPath ) ) {
+        await fsExtra.rm( serverPath, { recursive: true } );
+    }
 
     await fsExtra.mkdir( serverPath );
     await fsExtra.mkdir( `${serverPath}/test` );
@@ -21,83 +30,114 @@ beforeAll(async () => {
         url: `${FTPCONFIG_DEFAULT.protocol}://${FTPCONFIG_DEFAULT.host}:${FTPCONFIG_DEFAULT.port}`,
         pasv_url: FTPCONFIG_DEFAULT.pasv_url
     } );
-    ftpServer.on( 'login', ( data, resolve, reject ) => { return resolve( { root: serverPath } ); });
+    ftpServer.on( 'login', ( data, resolve, reject ) => {
+        return resolve( { root: serverPath } );
+    } );
     ftpServer.listen();
-});
+} );
 
-afterAll(async () => {
-    if( await fsExtra.exists( serverPath ) ) { await fsExtra.rmdir( serverPath, { recursive: true } ); }
+afterAll( async() => {
+    if( await fsExtra.exists( serverPath ) ) {
+        try {
+            await fsExtra.rm( serverPath, { recursive: true } );
+        } catch {}
+    }
 
     ftpServer.close();
-});
+} );
 
 //
 
-describe('exists OFtp', () => {
-    test( 'exists and no connected' , async () => {
+describe( 'exists OFtp', () => {
+    test( 'exists and no connected', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
-        let response = await ftpClient.exists();
+        const response = await ftpClient.exists();
 
         expect( response.status ).toBe( false );
-        expect( response.error.msg ).toBe( 'FTP Exists failed: FtpConnectionError: '
-                                           + 'can\'t perform \'list\' command when connection status is: not yet connected.' );
+        if( response.status === true ) {
+            return
+        }
+
+        expect( response.error.code ).toBe( 'UNCONNECTED' );
+        expect( response.error.msg ).toBe(
+            'FTP Exists failed: FtpConnectionError: connection status is not yet connected.'
+        );
     } );
 
-    test( 'exists bad file-from', async () => {
+    test( 'exists bad file-from', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
-        let response = await ftpClient.exists( 'pthon2.pdf' );
-
-        expect( response.status ).toBe( false );
-        expect( response.filename ).toBe( 'pthon2.pdf' );
-        expect( response.filepath ).toBe( 'pthon2.pdf' );
-
+        const response = await ftpClient.exists( 'pthon2.pdf' );
         await ftpClient.disconnect();
+
+        expect( response.status ).toBe( false );
+        if( response.status === true ) {
+            return
+        }
+
+        expect( response.error.code ).toBe( 'ENOENT' );
+        expect( response.error.filename ).toBe( 'pthon2.pdf' );
+        expect( response.error.filepath ).toBe( 'pthon2.pdf' );
     } );
 
-    test( 'exists file-from', async () => {
+    test( 'exists file-from', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
-        let response = await ftpClient.exists( 'python2.pdf' );
+        const response = await ftpClient.exists( 'python2.pdf' );
+
+        const responseList = await ftpClient.list();
+        await ftpClient.disconnect();
 
         expect( response.status ).toBe( true );
+        if( response.status === false ) {
+            return
+        }
+
         expect( response.filename ).toBe( 'python2.pdf' );
         expect( response.filepath ).toBe( 'python2.pdf' );
+        expect( response.type ).toBe( '-' );
 
-        response = await ftpClient.list();
 
-        expect( response.status ).toBe( true );
-        expect( response.count ).toBe( 2 );
+        expect( responseList.status ).toBe( true );
+        if( responseList.status === false ) {
+            return
+        }
 
-        expect( response.list[ 0 ].name ).toBe( 'python2.pdf' );
-        expect( response.list[ 0 ].path ).toBe( 'python2.pdf' );
-        expect( response.list[ 0 ].type ).toBe( '-' );
-
-        await ftpClient.disconnect();
+        expect( responseList.count ).toBe( 2 );
+        expect( responseList.list[ 0 ].name ).toBe( 'python2.pdf' );
+        expect( responseList.list[ 0 ].path ).toBe( 'python2.pdf' );
+        expect( responseList.list[ 0 ].type ).toBe( '-' );
     } );
 
-    test( 'exists file-from folder', async () => {
+    test( 'exists file-from folder', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
-        let response = await ftpClient.exists( 'test/python2-copy.pdf' );
+        const response = await ftpClient.exists( 'test/python2-copy.pdf' );
+
+        const responseList = await ftpClient.list( 'test' );
+        await ftpClient.disconnect();
 
         expect( response.status ).toBe( true );
+        if( response.status === false ) {
+            return
+        }
+
         expect( response.filename ).toBe( 'python2-copy.pdf' );
         expect( response.filepath ).toBe( 'test/python2-copy.pdf' );
+        expect( response.type ).toBe( '-' );
 
-        response = await ftpClient.list( 'test' );
+        expect( responseList.status ).toBe( true );
+        if( responseList.status === false ) {
+            return
+        }
 
-        expect( response.status ).toBe( true );
-        expect( response.count ).toBe( 1 );
-
-        expect( response.list[ 0 ].name ).toBe( 'python2-copy.pdf' );
-        expect( response.list[ 0 ].path ).toBe( 'test/python2-copy.pdf' );
-        expect( response.list[ 0 ].type ).toBe( '-' );
-
-        await ftpClient.disconnect();
+        expect( responseList.count ).toBe( 1 );
+        expect( responseList.list[ 0 ].name ).toBe( 'python2-copy.pdf' );
+        expect( responseList.list[ 0 ].path ).toBe( 'test/python2-copy.pdf' );
+        expect( responseList.list[ 0 ].type ).toBe( '-' );
     } );
-});
+} );

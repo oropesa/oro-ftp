@@ -1,6 +1,6 @@
-const OFtp = require( '../index' );
-const fsExtra = require( 'fs-extra' );
-const FtpSrv = require( 'ftp-srv' );
+import OFtp from '../index';
+import * as fsExtra from 'fs-extra';
+import FtpSrv from 'ftp-srv';
 
 //
 
@@ -8,12 +8,12 @@ const FTPCONFIG_DEFAULT = {
     protocol: 'ftp',
     host: '127.0.0.1',
     pasv_url: '0.0.0.0',
-    port: 33337,
+    port: 34337,
     user: 'chacho',
     password: 'loco'
 };
 
-const serverPath = `${__dirname}/srv-rmdir`;
+const serverPath = `${__dirname}/srv-rmdir-ts`;
 let ftpServer;
 
 beforeAll( async() => {
@@ -50,10 +50,10 @@ afterAll( async() => {
 //
 
 describe( 'rmdir OFtp', () => {
-    test( 'rmdir and no connected', async() => {
+    test( 'ts rmdir and no connected', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
-        const response = await ftpClient.rmdir();
+        const response = await ftpClient.rmdir( undefined );
 
         expect( response.status ).toBe( false );
         if( response.status === true ) {
@@ -66,7 +66,7 @@ describe( 'rmdir OFtp', () => {
         );
     } );
 
-    test( 'rmdir folder not exist', async() => {
+    test( 'ts rmdir folder not exist', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -83,7 +83,7 @@ describe( 'rmdir OFtp', () => {
         expect( response.foldername ).toBe( 'loco' );
     } );
 
-    test( 'rmdir folder not exist strict', async() => {
+    test( 'ts rmdir folder not exist strict', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -98,7 +98,7 @@ describe( 'rmdir OFtp', () => {
         expect( response.error.msg ).toMatch( /(FTP Rmdir failed: ENOENT: no such file or directory,)/ )
     } );
 
-    test( 'rmdir folder with content', async() => {
+    test( 'ts rmdir folder with content', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -113,7 +113,7 @@ describe( 'rmdir OFtp', () => {
         expect( response.error.msg ).toMatch( /(FTP Rmdir failed: ENOTEMPTY: directory not empty,)/ )
     } );
 
-    test( 'rmdir folder', async() => {
+    test( 'ts rmdir folder', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -129,7 +129,7 @@ describe( 'rmdir OFtp', () => {
         expect( response.folderpath ).toBe( 'test' );
     } );
 
-    test( 'rmdir folder in folder', async() => {
+    test( 'ts rmdir folder in folder', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();

@@ -1,8 +1,7 @@
-const OFtp = require( '../index' );
-const FtpSrv = require( 'ftp-srv' );
-const { GeneralError } = require('ftp-srv/src/errors');
-const fsExtra = require( 'fs-extra' );
-const Ofn = require( 'oro-functions' );
+import OFtp from '../index';
+import FtpSrv from 'ftp-srv';
+import * as fsExtra from 'fs-extra';
+import Ofn from 'oro-functions';
 
 //
 
@@ -16,12 +15,12 @@ const FTPCONFIG_DEFAULT = {
     protocol: 'ftp',
     host: '127.0.0.1',
     pasv_url: '0.0.0.0',
-    port: 33330,
+    port: 34330,
     user: 'chacho',
     password: 'loco'
 };
 
-const serverPath = `${__dirname}/srv-con`;
+const serverPath = `${__dirname}/srv-con-ts`;
 let ftpServer;
 
 beforeAll( async() => {
@@ -57,7 +56,7 @@ afterAll( async() => {
 //
 
 describe( 'get OFtp parent clientFTP', () => {
-    test( 'client is PromiseFtp', async() => {
+    test( 'ts client is PromiseFtp', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         const clientFTP = ftpClient.getClient();
@@ -66,7 +65,7 @@ describe( 'get OFtp parent clientFTP', () => {
 } );
 
 describe( 'init Bad OFtp', () => {
-    test( 'new OFtp( undefined )', async() => {
+    test( 'ts new OFtp( undefined )', async() => {
         const ftpClient = new OFtp();
 
         const connected = await ftpClient.connect();
@@ -82,7 +81,7 @@ describe( 'init Bad OFtp', () => {
         expect( connected.error.code ).toBe( `UNCONNECTED` );
     } );
 
-    test( 'new OFtp( bad-config host )', async() => {
+    test( 'ts new OFtp( bad-config host )', async() => {
         const ftpClient = new OFtp( FTPCONFIG_BAD );
 
         const connected = await ftpClient.connect();
@@ -98,7 +97,7 @@ describe( 'init Bad OFtp', () => {
         expect( connected.error.code ).toBe( `ENOTFOUND` );
     } );
 
-    test( 'new OFtp( timeout-config )', async() => {
+    test( 'ts new OFtp( timeout-config )', async() => {
         const customConfig = Object.assign( { readyTimeout: 1 }, FTPCONFIG_DEFAULT );
         const ftpClient = new OFtp( customConfig );
 
@@ -117,7 +116,7 @@ describe( 'init Bad OFtp', () => {
 } );
 
 describe( 'init OFtp', () => {
-    test( 'new OFtp( config )', async() => {
+    test( 'ts new OFtp( config )', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         const connected = await ftpClient.connect();

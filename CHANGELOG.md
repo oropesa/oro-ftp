@@ -1,3 +1,15 @@
+## 1.1.0 / 2023-06-17
+* Added `TS` support.
+* Added _ts tests_.
+* Added `package-lock.json`.
+* Improved _tests_.
+* Improved _readme_.
+* Improved _error messages_ and added param `code` in _responseKO error_.
+* Updated lib `fs-extra` to `v11.1.1`.
+* Updated lib `oro-functions` to `v1.3.2`.
+* Updated lib-dev `ftp-srv` to `v4.6.2`.
+* Updated lib-dev `jest` to `v29.5.0`.
+
 ## 1.0.4 / 2022-06-21
 * Updated lib `oro-functions` to `v1.1.6`.
 * Updated lib-dev `jest` to `v28.1.1`.

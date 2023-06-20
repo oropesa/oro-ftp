@@ -1,6 +1,6 @@
-const OFtp = require( '../index' );
-const fsExtra = require( 'fs-extra' );
-const FtpSrv = require( 'ftp-srv' );
+import OFtp from '../index';
+import * as fsExtra from 'fs-extra';
+import FtpSrv from 'ftp-srv';
 
 //
 
@@ -8,12 +8,12 @@ const FTPCONFIG_DEFAULT = {
     protocol: 'ftp',
     host: '127.0.0.1',
     pasv_url: '0.0.0.0',
-    port: 33331,
+    port: 34331,
     user: 'chacho',
     password: 'loco'
 };
 
-const serverPath = `${__dirname}/srv-delete`;
+const serverPath = `${__dirname}/srv-delete-ts`;
 let ftpServer;
 
 beforeAll( async() => {
@@ -49,10 +49,10 @@ afterAll( async() => {
 //
 
 describe( 'delete OFtp', () => {
-    test( 'delete and no connected', async() => {
+    test( 'ts delete and no connected', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
-        const response = await ftpClient.delete();
+        const response = await ftpClient.delete( undefined );
 
         expect( response.status ).toBe( false );
         if( response.status === true ) {
@@ -65,7 +65,7 @@ describe( 'delete OFtp', () => {
         );
     } );
 
-    test( 'delete bad file-from', async() => {
+    test( 'ts delete bad file-from', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -80,7 +80,7 @@ describe( 'delete OFtp', () => {
         expect( response.error.msg ).toMatch( /(FTP Delete failed: ENOENT: no such file or directory,)/ );
     } );
 
-    test( 'delete bad folder with file', async() => {
+    test( 'ts delete bad folder with file', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -95,7 +95,7 @@ describe( 'delete OFtp', () => {
         expect( response.error.msg ).toMatch( /(FTP Delete failed: ENOTEMPTY: directory not empty,)/ );
     } );
 
-    test( 'delete simple', async() => {
+    test( 'ts delete simple', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -124,7 +124,7 @@ describe( 'delete OFtp', () => {
         expect( responseList.list[ 0 ].type ).toBe( 'd' );
     } );
 
-    test( 'delete file of folder', async() => {
+    test( 'ts delete file of folder', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -147,15 +147,14 @@ describe( 'delete OFtp', () => {
         }
 
         expect( responseList.count ).toBe( 0 );
+
     } );
 
-    test( 'delete folder empty', async() => {
+    test( 'ts delete folder empty', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
         const response = await ftpClient.delete( 'test' );
-        const responseList = await ftpClient.list();
-        await ftpClient.disconnect();
 
         expect( response.status ).toBe( true );
 
@@ -165,6 +164,9 @@ describe( 'delete OFtp', () => {
 
         expect( response.filename ).toBe( 'test' );
         expect( response.filepath ).toBe( 'test' );
+
+        const responseList = await ftpClient.list();
+        await ftpClient.disconnect();
 
         expect( responseList.status ).toBe( true );
         if( responseList.status === false ) {

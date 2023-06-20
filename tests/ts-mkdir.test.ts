@@ -1,6 +1,6 @@
-const OFtp = require( '../index' );
-const fsExtra = require( 'fs-extra' );
-const FtpSrv = require( 'ftp-srv' );
+import OFtp from '../index';
+import * as fsExtra from 'fs-extra';
+import FtpSrv from 'ftp-srv';
 
 //
 
@@ -8,12 +8,12 @@ const FTPCONFIG_DEFAULT = {
     protocol: 'ftp',
     host: '127.0.0.1',
     pasv_url: '0.0.0.0',
-    port: 33337,
+    port: 34335,
     user: 'chacho',
     password: 'loco'
 };
 
-const serverPath = `${__dirname}/srv-rmdir`;
+const serverPath = `${__dirname}/srv-mkdir-ts`;
 let ftpServer;
 
 beforeAll( async() => {
@@ -23,8 +23,6 @@ beforeAll( async() => {
 
     await fsExtra.mkdir( serverPath );
     await fsExtra.mkdir( `${serverPath}/test` );
-    await fsExtra.mkdir( `${serverPath}/chacho/loco/tio`, { recursive: true } );
-    await fsExtra.mkdir( `${serverPath}/foo/bar/baz`, { recursive: true } );
     await fsExtra.copy( `${__dirname}/zpython2.pdf`, `${serverPath}/python2.pdf` );
 
     ftpServer = new FtpSrv( {
@@ -49,11 +47,11 @@ afterAll( async() => {
 
 //
 
-describe( 'rmdir OFtp', () => {
-    test( 'rmdir and no connected', async() => {
+describe( 'mkdir OFtp', () => {
+    test( 'ts mkdir and no connected', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
-        const response = await ftpClient.rmdir();
+        const response = await ftpClient.mkdir( undefined );
 
         expect( response.status ).toBe( false );
         if( response.status === true ) {
@@ -62,15 +60,15 @@ describe( 'rmdir OFtp', () => {
 
         expect( response.error.code ).toBe( 'UNCONNECTED' );
         expect( response.error.msg ).toBe(
-            'FTP Rmdir failed: FtpConnectionError: connection status is not yet connected.'
+            'FTP Mkdir failed: FtpConnectionError: connection status is not yet connected.'
         );
     } );
 
-    test( 'rmdir folder not exist', async() => {
+    test( 'ts mkdir folder already exists', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
-        const response = await ftpClient.rmdir( 'loco' );
+        const response = await ftpClient.mkdir( 'test' );
         await ftpClient.disconnect();
 
         expect( response.status ).toBe( true );
@@ -78,16 +76,35 @@ describe( 'rmdir OFtp', () => {
             return
         }
 
-        expect( response.msg ).toBe( 'Folder not found.' );
-        expect( response.folderpath ).toBe( 'loco' );
-        expect( response.foldername ).toBe( 'loco' );
+        expect( response.msg ).toBe( 'Folder already exists.' );
+        expect( response.folderpath ).toBe( 'test' );
+        expect( response.foldername ).toBe( 'test' );
     } );
 
-    test( 'rmdir folder not exist strict', async() => {
+    test( 'ts mkdir folder already exists strict', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
-        const response = await ftpClient.rmdir( 'loco', true );
+        const response = await ftpClient.mkdir(
+            'test',
+            false,
+            true
+        );
+
+        expect( response.status ).toBe( false );
+        if( response.status === true ) {
+            return
+        }
+
+        expect( response.error.code ).toBe( 'EEXIST' );
+        expect( response.error.msg ).toMatch( /(FTP Mkdir failed: EEXIST: folder already exists,)/ )
+    } );
+
+    test( 'ts mkdir folder not recursive', async() => {
+        const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
+
+        await ftpClient.connect();
+        const response = await ftpClient.mkdir( 'chacho/loco/tio' );
 
         expect( response.status ).toBe( false );
         if( response.status === true ) {
@@ -95,29 +112,14 @@ describe( 'rmdir OFtp', () => {
         }
 
         expect( response.error.code ).toBe( 'ENOENT' );
-        expect( response.error.msg ).toMatch( /(FTP Rmdir failed: ENOENT: no such file or directory,)/ )
+        expect( response.error.msg ).toMatch( /(FTP Mkdir failed: ENOENT: no such directory,)/ )
     } );
 
-    test( 'rmdir folder with content', async() => {
+    test( 'ts mkdir folder recursive', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
-        const response = await ftpClient.rmdir( 'chacho' );
-
-        expect( response.status ).toBe( false );
-        if( response.status === true ) {
-            return
-        }
-
-        expect( response.error.code ).toBe( 'ENOTEMPTY' );
-        expect( response.error.msg ).toMatch( /(FTP Rmdir failed: ENOTEMPTY: directory not empty,)/ )
-    } );
-
-    test( 'rmdir folder', async() => {
-        const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
-
-        await ftpClient.connect();
-        const response = await ftpClient.rmdir( 'test' );
+        const response = await ftpClient.mkdir( 'chacho/loco/tio', true );
         await ftpClient.disconnect();
 
         expect( response.status ).toBe( true );
@@ -125,15 +127,15 @@ describe( 'rmdir OFtp', () => {
             return
         }
 
-        expect( response.foldername ).toBe( 'test' );
-        expect( response.folderpath ).toBe( 'test' );
+        expect( response.foldername ).toBe( 'tio' );
+        expect( response.folderpath ).toBe( 'chacho/loco/tio' );
     } );
 
-    test( 'rmdir folder in folder', async() => {
+    test( 'ts mkdir folder', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
-        const response = await ftpClient.rmdir( 'foo/bar/baz' );
+        const response = await ftpClient.mkdir( 'foo' );
         await ftpClient.disconnect();
 
         expect( response.status ).toBe( true );
@@ -141,7 +143,23 @@ describe( 'rmdir OFtp', () => {
             return
         }
 
-        expect( response.foldername ).toBe( 'baz' );
-        expect( response.folderpath ).toBe( 'foo/bar/baz' );
+        expect( response.foldername ).toBe( 'foo' );
+        expect( response.folderpath ).toBe( 'foo' );
+    } );
+
+    test( 'ts mkdir folder in folder', async() => {
+        const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
+
+        await ftpClient.connect();
+        const response = await ftpClient.mkdir( 'foo/bar' );
+        await ftpClient.disconnect();
+
+        expect( response.status ).toBe( true );
+        if( response.status === false ) {
+            return
+        }
+
+        expect( response.foldername ).toBe( 'bar' );
+        expect( response.folderpath ).toBe( 'foo/bar' );
     } );
 } );

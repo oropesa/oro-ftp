@@ -1,6 +1,6 @@
-const OFtp = require( '../index' );
-const fsExtra = require( 'fs-extra' );
-const FtpSrv = require( 'ftp-srv' );
+import OFtp from '../index';
+import * as fsExtra from 'fs-extra';
+import FtpSrv from 'ftp-srv';
 
 //
 
@@ -8,12 +8,12 @@ const FTPCONFIG_DEFAULT = {
     protocol: 'ftp',
     host: '127.0.0.1',
     pasv_url: '0.0.0.0',
-    port: 33334,
+    port: 34334,
     user: 'chacho',
     password: 'loco'
 };
 
-const serverPath = `${__dirname}/srv-list`;
+const serverPath = `${__dirname}/srv-list-ts`;
 let ftpServer;
 
 beforeAll(async () => {
@@ -46,7 +46,7 @@ afterAll(async () => {
 //
 
 describe('list OFtp', () => {
-    test( 'list and no connected' , async () => {
+    test( 'ts list and no connected' , async () => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         const response = await ftpClient.list();
@@ -61,7 +61,7 @@ describe('list OFtp', () => {
         );
     } );
 
-    test( 'list main', async () => {
+    test( 'ts list main', async () => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -84,7 +84,7 @@ describe('list OFtp', () => {
         expect( response.list[ 1 ].type ).toBe( 'd' );
     } );
 
-    test( 'list folder main', async () => {
+    test( 'ts list folder main', async () => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -107,7 +107,7 @@ describe('list OFtp', () => {
         expect( response.list[ 1 ].type ).toBe( 'd' );
     } );
 
-    test( 'list folder', async () => {
+    test( 'ts list folder', async () => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();

@@ -1,7 +1,7 @@
-const OFtp = require( '../index' );
-const fsExtra = require( 'fs-extra' );
-const FtpSrv = require( 'ftp-srv' );
-const Ofn = require( 'oro-functions' );
+import OFtp from '../index';
+import * as fsExtra from 'fs-extra';
+import FtpSrv from 'ftp-srv';
+import Ofn from 'oro-functions';
 
 //
 
@@ -9,17 +9,19 @@ const FTPCONFIG_DEFAULT = {
     protocol: 'ftp',
     host: '127.0.0.1',
     pasv_url: '0.0.0.0',
-    port: 33338,
+    port: 34338,
     user: 'chacho',
     password: 'loco'
 };
 
-const serverPath = `${__dirname}/srv-upload`;
+const serverPath = `${__dirname}/srv-upload-ts`;
 let ftpServer;
 
 beforeAll( async() => {
     if( await fsExtra.exists( serverPath ) ) {
-        await fsExtra.rm( serverPath, { recursive: true } );
+        try {
+            await fsExtra.rm( serverPath, { recursive: true } );
+        } catch {}
     }
 
     await fsExtra.mkdir( serverPath );
@@ -49,7 +51,7 @@ afterAll( async() => {
 //
 
 describe( 'upload OFtp', () => {
-    test( 'upload and no connected', async() => {
+    test( 'ts upload and no connected', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         const response = await ftpClient.upload(
@@ -68,7 +70,7 @@ describe( 'upload OFtp', () => {
         );
     } );
 
-    test( 'upload bad file-from name', async() => {
+    test( 'ts upload bad file-from name', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -86,7 +88,7 @@ describe( 'upload OFtp', () => {
         expect( response.error.msg ).toBe( 'FTP Upload failed: File (From) to upload not exist.' );
     } );
 
-    test( 'upload bad folder-to name', async() => {
+    test( 'ts upload bad folder-to name', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -104,7 +106,7 @@ describe( 'upload OFtp', () => {
         expect( response.error.msg ).toMatch( /(FTP Upload failed: ENOENT: no such file or directory,)/ );
     } );
 
-    test( 'upload simple', async() => {
+    test( 'ts upload simple', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -135,7 +137,7 @@ describe( 'upload OFtp', () => {
         expect( names.includes( 'zpython.pdf' ) ).toBe( true );
     } );
 
-    test( 'upload absolute', async() => {
+    test( 'ts upload absolute', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -167,21 +169,21 @@ describe( 'upload OFtp', () => {
         expect( names.includes( 'python-copy.pdf' ) ).toBe( true );
     } );
 
-    test( 'upload relative', async() => {
+    test( 'ts upload relative', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
-        await fsExtra.copy( `${__dirname}/zpython2.pdf`, `../python2.pdf` );
+        await fsExtra.copy( `${__dirname}/zpython2.pdf`, `../python2-ts.pdf` );
 
         await ftpClient.connect();
         const response = await ftpClient.upload(
-            `../python2.pdf`,
+            `../python2-ts.pdf`,
             'python2-copy.pdf'
         );
 
         const responseList = await ftpClient.list();
         await ftpClient.disconnect();
 
-        await fsExtra.remove( `../python2.pdf` );
+        await fsExtra.remove( `../python2-ts.pdf` );
 
         expect( response.status ).toBe( true );
         if( response.status === false ) {
@@ -203,7 +205,7 @@ describe( 'upload OFtp', () => {
         expect( names.includes( 'python2-copy.pdf' ) ).toBe( true );
     } );
 
-    test( 'upload to folder', async() => {
+    test( 'ts upload to folder', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -232,7 +234,7 @@ describe( 'upload OFtp', () => {
         expect( responseList.list[ 0 ].name ).toBe( 'python-copy.pdf' );
     } );
 
-    test( 'upload one', async() => {
+    test( 'ts upload one', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         const response = await ftpClient.uploadOne(

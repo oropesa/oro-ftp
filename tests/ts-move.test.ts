@@ -1,6 +1,6 @@
-const OFtp = require( '../index' );
-const fsExtra = require( 'fs-extra' );
-const FtpSrv = require( 'ftp-srv' );
+import OFtp from '../index';
+import * as fsExtra from 'fs-extra';
+import FtpSrv from 'ftp-srv';
 
 //
 
@@ -8,12 +8,12 @@ const FTPCONFIG_DEFAULT = {
     protocol: 'ftp',
     host: '127.0.0.1',
     pasv_url: '0.0.0.0',
-    port: 33336,
+    port: 34336,
     user: 'chacho',
     password: 'loco'
 };
 
-const serverPath = `${__dirname}/srv-move`;
+const serverPath = `${__dirname}/srv-move-ts`;
 let ftpServer;
 
 beforeAll( async() => {
@@ -48,10 +48,10 @@ afterAll( async() => {
 //
 
 describe( 'move OFtp', () => {
-    test( 'move and no connected', async() => {
+    test( 'ts move and no connected', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
-        const response = await ftpClient.move();
+        const response = await ftpClient.move( undefined, undefined );
 
         expect( response.status ).toBe( false );
         if( response.status === true ) {
@@ -64,7 +64,7 @@ describe( 'move OFtp', () => {
         );
     } );
 
-    test( 'move bad file-from', async() => {
+    test( 'ts move bad file-from', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -82,7 +82,7 @@ describe( 'move OFtp', () => {
         expect( response.error.msg ).toMatch( /(FTP Move failed: ENOENT: no such file or directory,)/ );
     } );
 
-    test( 'move bad file-to', async() => {
+    test( 'ts move bad file-to', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -100,7 +100,7 @@ describe( 'move OFtp', () => {
         expect( response.error.msg ).toMatch( /(FTP Move failed: ENOENT: no such file or directory,)/ );
     } );
 
-    test( 'move simple', async() => {
+    test( 'ts move simple', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
@@ -108,6 +108,7 @@ describe( 'move OFtp', () => {
             'python2.pdf',
             'python2-copy.pdf'
         );
+
         const responseList = await ftpClient.list();
         await ftpClient.disconnect();
 
@@ -135,7 +136,7 @@ describe( 'move OFtp', () => {
         expect( responseList.list[ 1 ].type ).toBe( 'd' );
     } );
 
-    test( 'move to folder', async() => {
+    test( 'ts move to folder', async() => {
         const ftpClient = new OFtp( FTPCONFIG_DEFAULT );
 
         await ftpClient.connect();
