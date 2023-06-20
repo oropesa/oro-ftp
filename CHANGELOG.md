@@ -1,4 +1,4 @@
-## 1.1.0 / 2023-06-17
+## 1.1.1 & 1.1.0 / 2023-06-21
 * Added `TS` support.
 * Added _ts tests_.
 * Added `package-lock.json`.
