@@ -1,14 +1,15 @@
-const { OFtp } = require('../dist');
-const fsExtra = require('fs-extra');
-const FtpSrv = require('@nearst/ftp');
+import OFtp from '../dist';
+import FtpSrv from '@nearst/ftp';
+import * as fsExtra from 'fs-extra';
 
-const { DIRNAME, FTPCONFIG_DEFAULT } = require('./utils');
+// @ts-ignore
+import { DIRNAME, FTPCONFIG_DEFAULT } from './utils';
 
 //
 
-const FTPCONFIG = { ...FTPCONFIG_DEFAULT, port: 33_336 };
-const SERVER_PATH = `${DIRNAME}/srv-move`;
-let ftpServer;
+const FTPCONFIG = { ...FTPCONFIG_DEFAULT, port: 34_336 };
+const SERVER_PATH = `${DIRNAME}/srv-move-ts`;
+let ftpServer: FtpSrv;
 
 beforeAll(async () => {
   if (await fsExtra.exists(SERVER_PATH)) {
@@ -17,13 +18,13 @@ beforeAll(async () => {
 
   await fsExtra.mkdir(SERVER_PATH);
   await fsExtra.mkdir(`${SERVER_PATH}/test`);
-  await fsExtra.copy(`${__dirname}/zsilence2.pdf`, `${SERVER_PATH}/silence2.pdf`);
+  await fsExtra.copy(`${DIRNAME}/zsilence2.pdf`, `${SERVER_PATH}/silence2.pdf`);
 
   ftpServer = new FtpSrv({
     url: `${FTPCONFIG.protocol}://${FTPCONFIG.host}:${FTPCONFIG.port}`,
     pasv_url: FTPCONFIG.pasv_url,
   });
-  ftpServer.on('login', (data, resolve, reject) => {
+  ftpServer.on('login', (_data, resolve, _reject) => {
     return resolve({ root: SERVER_PATH });
   });
   ftpServer.listen();
@@ -42,13 +43,13 @@ afterAll(async () => {
 //
 
 describe('move OFtp', () => {
-  test('move and no connected', async () => {
+  test('ts move and no connected', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
-    const response = await ftpClient.move();
+    const response = await ftpClient.move('', '');
 
     expect(response.status).toBe(false);
-    if (response.status === true) {
+    if (response.status) {
       return;
     }
 
@@ -58,14 +59,14 @@ describe('move OFtp', () => {
     );
   });
 
-  test('move bad file-from', async () => {
+  test('ts move bad file-from', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
     const response = await ftpClient.move('pthon2.pdf', 'silence2-copy.pdf');
 
     expect(response.status).toBe(false);
-    if (response.status === true) {
+    if (response.status) {
       return;
     }
 
@@ -73,14 +74,14 @@ describe('move OFtp', () => {
     expect(response.error.msg).toMatch(/(FTP Move failed: ENOENT: no such file or directory,)/);
   });
 
-  test('move bad file-to', async () => {
+  test('ts move bad file-to', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
     const response = await ftpClient.move('silence2.pdf', 'chacho/silence2-copy.pdf');
 
     expect(response.status).toBe(false);
-    if (response.status === true) {
+    if (response.status) {
       return;
     }
 
@@ -88,16 +89,17 @@ describe('move OFtp', () => {
     expect(response.error.msg).toMatch(/(FTP Move failed: ENOENT: no such file or directory,)/);
   });
 
-  test('move simple', async () => {
+  test('ts move simple', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
     const response = await ftpClient.move('silence2.pdf', 'silence2-copy.pdf');
+
     const responseList = await ftpClient.list();
     await ftpClient.disconnect();
 
     expect(response.status).toBe(true);
-    if (response.status === false) {
+    if (!response.status) {
       return;
     }
 
@@ -105,7 +107,7 @@ describe('move OFtp', () => {
     expect(response.filepath).toBe('silence2-copy.pdf');
 
     expect(responseList.status).toBe(true);
-    if (responseList.status === false) {
+    if (!responseList.status) {
       return;
     }
 
@@ -120,7 +122,7 @@ describe('move OFtp', () => {
     expect(responseList.list[1].type).toBe('d');
   });
 
-  test('move to folder', async () => {
+  test('ts move to folder', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
@@ -131,7 +133,7 @@ describe('move OFtp', () => {
     await ftpClient.disconnect();
 
     expect(response.status).toBe(true);
-    if (response.status === false) {
+    if (!response.status) {
       return;
     }
 
@@ -139,7 +141,7 @@ describe('move OFtp', () => {
     expect(response.filepath).toBe('test/silence2-cc.pdf');
 
     expect(responseList.status).toBe(true);
-    if (responseList.status === false) {
+    if (!responseList.status) {
       return;
     }
 
@@ -150,7 +152,7 @@ describe('move OFtp', () => {
     expect(responseList.list[0].type).toBe('d');
 
     expect(responseList2.status).toBe(true);
-    if (responseList2.status === false) {
+    if (!responseList2.status) {
       return;
     }
 

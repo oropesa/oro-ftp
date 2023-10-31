@@ -1,14 +1,15 @@
-const { OFtp } = require('../dist');
-const fsExtra = require('fs-extra');
-const FtpSrv = require('@nearst/ftp');
+import OFtp from '../dist';
+import FtpSrv from '@nearst/ftp';
+import * as fsExtra from 'fs-extra';
 
-const { DIRNAME, FTPCONFIG_DEFAULT } = require('./utils');
+// @ts-ignore
+import { DIRNAME, FTPCONFIG_DEFAULT } from './utils';
 
 //
 
-const FTPCONFIG = { ...FTPCONFIG_DEFAULT, port: 33_334 };
-const SERVER_PATH = `${DIRNAME}/srv-list`;
-let ftpServer;
+const FTPCONFIG = { ...FTPCONFIG_DEFAULT, port: 34_334 };
+const SERVER_PATH = `${DIRNAME}/srv-list-ts`;
+let ftpServer: FtpSrv;
 
 beforeAll(async () => {
   if (await fsExtra.exists(SERVER_PATH)) {
@@ -17,13 +18,13 @@ beforeAll(async () => {
 
   await fsExtra.mkdir(SERVER_PATH);
   await fsExtra.mkdir(`${SERVER_PATH}/test`);
-  await fsExtra.copy(`${__dirname}/zsilence2.pdf`, `${SERVER_PATH}/silence2.pdf`);
+  await fsExtra.copy(`${DIRNAME}/zsilence2.pdf`, `${SERVER_PATH}/silence2.pdf`);
 
   ftpServer = new FtpSrv({
     url: `${FTPCONFIG.protocol}://${FTPCONFIG.host}:${FTPCONFIG.port}`,
     pasv_url: FTPCONFIG.pasv_url,
   });
-  ftpServer.on('login', (data, resolve, _reject) => {
+  ftpServer.on('login', (_data, resolve, _reject) => {
     return resolve({ root: SERVER_PATH });
   });
   ftpServer.listen();
@@ -42,13 +43,13 @@ afterAll(async () => {
 //
 
 describe('list OFtp', () => {
-  test('list and no connected', async () => {
+  test('ts list and no connected', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     const response = await ftpClient.list();
 
     expect(response.status).toBe(false);
-    if (response.status === true) {
+    if (response.status) {
       return;
     }
 
@@ -57,7 +58,7 @@ describe('list OFtp', () => {
     );
   });
 
-  test('list main', async () => {
+  test('ts list main', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
@@ -65,7 +66,7 @@ describe('list OFtp', () => {
     await ftpClient.disconnect();
 
     expect(response.status).toBe(true);
-    if (response.status === false) {
+    if (!response.status) {
       return;
     }
 
@@ -80,7 +81,7 @@ describe('list OFtp', () => {
     expect(response.list[1].type).toBe('d');
   });
 
-  test('list folder main', async () => {
+  test('ts list folder main', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
@@ -88,7 +89,7 @@ describe('list OFtp', () => {
     await ftpClient.disconnect();
 
     expect(response.status).toBe(true);
-    if (response.status === false) {
+    if (!response.status) {
       return;
     }
 
@@ -103,14 +104,14 @@ describe('list OFtp', () => {
     expect(response.list[1].type).toBe('d');
   });
 
-  test('list folder', async () => {
+  test('ts list folder', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
     const response = await ftpClient.list('test');
 
     expect(response.status).toBe(true);
-    if (response.status === false) {
+    if (!response.status) {
       return;
     }
 
@@ -118,13 +119,13 @@ describe('list OFtp', () => {
 
     //
 
-    await fsExtra.copy(`${__dirname}/zsilence2.pdf`, `${SERVER_PATH}/test/silence-copy2.pdf`);
+    await fsExtra.copy(`${DIRNAME}/zsilence2.pdf`, `${SERVER_PATH}/test/silence-copy2.pdf`);
 
     const response2 = await ftpClient.list('test');
     await ftpClient.disconnect();
 
     expect(response2.status).toBe(true);
-    if (response2.status === false) {
+    if (!response2.status) {
       return;
     }
 
@@ -142,7 +143,7 @@ describe('list OFtp', () => {
     expect(fileKeys.includes('owner')).toBe(true);
     expect(fileKeys.includes('group')).toBe(true);
 
-    const rightKeys = Object.keys(response2.list[0].rights);
+    const rightKeys = Object.keys(response2.list[0].rights ?? {});
 
     expect(rightKeys.includes('user')).toBe(true);
     expect(rightKeys.includes('group')).toBe(true);
