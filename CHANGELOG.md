@@ -1,3 +1,31 @@
+## 2.0.0 / 2023-10-31
+**NOTE:**<br>
+⚠️ It's not valid anymore:<br>`const OFtp = require('oro-ftp')`,<br>
+✔️ use the following instead:<br>`const { OFtp } = require('oro-ftp')`
+
+* Refactored `./index.js` to `./src/index.ts`.
+* Updated _package_ as `type: "module"`.
+* Added `tsup` and now _package_ is compiled to `cjs` _(common)_ and `mjs` _(module)_.
+* Added _github actions_:
+    * `validate_pr_to_master`
+    * `npm_publish_on_pr_merge_to_master`.
+* Added `husky` (to ensure only valid commits).
+* Added `eslint` (and applied it).
+* Added `prettier` (and applied it).
+* Updated _package description_
+* Updated libs:
+    * `oro-functions` to `v2.0.0`.
+* Updated _dev_ libs:
+    * `ftp-svr` to `@nearst/ftp`.
+    * `@babel/core` to `v7.23.2`.
+    * `@babel/preset-env` to `v7.23.2`.
+    * `@babel/preset-typescript` to `v7.23.2`.
+    * `@types/jest` to `v29.5.7`.
+    * `@types/fs-extra` to `v11.0.3`.
+    * `@types/promise-ftp` to `v1.3.7`.
+    * `babel-jest` to `v29.7.0`.
+    * `jest` to `v29.7.0`.
+
 ## 1.1.1 & 1.1.0 / 2023-06-21
 * Added `TS` support.
 * Added _ts tests_.

@@ -1,10 +1,10 @@
 # Oro Ftp
 
-Class OroFtp is a wrapper of promise-ftp to simplify their use.
+OroFtp Class is a wrapper of promise-ftp to simplify their use.
 
-[promise-ftp](https://www.npmjs.com/package/promise-ftp) is a FTP client module for node.js that provides an asynchronous interface for communicating with an FTP server.
+[promise-ftp](https://www.npmjs.com/package/promise-ftp) is a FTP client module for node.js that provides an asynchronous interface for communicating with a FTP server.
 
-If you need the same wrapper using SFTP, then use [OroSFtp](https://www.npmjs.com/package/oro-sftp)
+To have the same interface using SFTP, you can utilize the OroSFtp class available through [OroSFtp package](https://www.npmjs.com/package/oro-sftp).
 
 ```shell
 npm install oro-ftp
@@ -13,17 +13,17 @@ npm install oro-ftp
 Example:
 
 ```js
-// js
+// cjs
 const OFtp = require( 'oro-ftp' );
 
-// ts
+// mjs, ts
 import OFtp from 'oro-ftp';
 
 const ftpClient = new OFtp( { 
-    host: 'custom-server.com', 
-    port: 21, 
-    user: 'custom-user', 
-    password: 'custom-password' 
+  host: 'custom-server.com', 
+  port: 21, 
+  user: 'custom-user', 
+  password: 'custom-password' 
 } );
 
 const ftpUpload = await ftpClient.uploadOne( `./folder-from/filename`, 'folder-to/filename' );
@@ -134,22 +134,22 @@ type OFtpConfig = PromiseFtp.Options &  {
     disconnectWhenError?: boolean;  // def: true
 }
 
-export type OFtpConnectResponse = SResponse<
-    SResponseOK,     
-    OFtpConnectError // as SResponseKO
->;
+export type OFtpConnectResponse = 
+  | SResponseOKBasic
+  | SResponseKOObjectAgain<OFtpConnectError>;
 
-interface SResponseOK { 
+interface SResponseOKBasic { 
     status: true;
 }
 
-interface SResponseKO { 
+interface SResponseKOObjectAgain { 
     status: false;
     error: {
         msg: string;
         code: OFtpErrorCode;
         config: OFtpConfig;
-    }
+    },
+    tryAgain: boolean;
 }
 
 interface OFtpConnectError {
@@ -175,16 +175,15 @@ console.log( connected );
 ```ts
 await ftpClient.disconnect() => Promise<OFtpDisconnectResponse>;
 
-export type OFtpDisconnectResponse = SResponse<
-    SResponseOK,
-    SResponseKO
->;
+export type OFtpDisconnectResponse = 
+  | SResponseOKBasic 
+  | SResponseKOBasic;
 
-interface SResponseOK { 
+interface SResponseOKBasic { 
     status: true;
 }
 
-interface SResponseKO { 
+interface SResponseKOBasic { 
     status: false;
 }
 ```
@@ -213,18 +212,17 @@ console.log( disconnected );
 await ftpClient.upload( filepathFrom: string, filepathTo?: string ) 
     => Promise<OFtpFileResponse>;
 
-export type OFtpFileResponse = SResponse<
-    OFtpFileObject, // as SResponseOK
-    OFtpFileError   // as SResponseKO
->;
+export type OFtpFileResponse =
+  | SResponseOKObject<OFtpFileObject> 
+  | SResponseKOObject<OFtpFileError>;
 
-interface SResponseOK { 
+interface SResponseOKObject { 
     status: true;
     filename: string;
     filepath: string;
 }
 
-interface SResponseKO { 
+interface SResponseKOObject { 
     status: false;
     error: {
         msg: string;
@@ -269,18 +267,17 @@ await ftpClient.disconnect();
 await ftpClient.upload( filepathFrom: string, filepathTo?: string ) 
     => Promise<OFtpUploadOneResponse>;
 
-export type OFtpUploadOneResponse = SResponse<
-    OFtpFileObject,                  // as SResponseOK
-    OFtpFileError | OFtpConnectError // as SResponseKO
->;
+export type OFtpUploadOneResponse =
+  | SResponseOKObject<OFtpFileObject>
+  | SResponseKOObject<OFtpFileError | OFtpConnectError>;
 
-interface SResponseOK { 
+interface SResponseOKObject { 
     status: true;
     filename: string;
     filepath: string;
 }
 
-type SResponseKO =
+type SResponseKOObject =
     | { 
         status: false;
         error: {
@@ -336,18 +333,17 @@ console.log( uploaded );
 await ftpClient.download( filepathFrom: string, filepathTo?: string ) 
     => Promise<OFtpFileResponse>;
 
-export type OFtpFileResponse = SResponse<
-    OFtpFileObject, // as SResponseOK
-    OFtpFileError   // as SResponseKO
->;
+export type OFtpFileResponse =
+  | SResponseOKObject<OFtpFileObject>
+  | SResponseKOObject<OFtpFileError>;
 
-interface SResponseOK { 
+interface SResponseOKObject { 
     status: true;
     filename: string;
     filepath: string;
 }
 
-interface SResponseKO { 
+interface SResponseKOObject { 
     status: false;
     error: {
         msg: string;
@@ -398,18 +394,17 @@ interface OFtpListFilters {
     pattern?: string | RegExp | undefined;
 }
 
-export type OFtpListResponse = SResponse<
-    OFtpListObject, // as SResponseOK
-    OFtpListError   // as SResponseKO
->;
+export type OFtpListResponse =
+  | SResponseOKObject<OFtpListObject> 
+  | SResponseKOObject<OFtpListError>;
 
-interface SResponseOK { 
+interface SResponseOKObject { 
     status: true;
     count: number; // list.length
     list: OFtpListFile[];
 }
 
-interface SResponseKO { 
+interface SResponseKOObject { 
     status: false;
     error: {
         msg: string;
@@ -502,18 +497,17 @@ response example
 await ftpClient.move( filepathFrom: string, filepathTo?: string ) 
     => Promise<OFtpFileResponse>;
 
-export type OFtpFileResponse = SResponse<
-    OFtpFileObject, // as SResponseOK
-    OFtpFileError   // as SResponseKO
->;
+export type OFtpFileResponse =
+  | SResponseOKObject<OFtpFileObject> 
+  | SResponseKOObject<OFtpFileError>;
 
-interface SResponseOK { 
+interface SResponseOKObject { 
     status: true;
     filename: string;
     filepath: string;
 }
 
-interface SResponseKO { 
+interface SResponseKOObject { 
     status: false;
     error: {
         msg: string;
@@ -556,18 +550,17 @@ ftpClient.disconnect();
 await ftpClient.delete( filepathFrom: string, strict?: boolean ) 
     => Promise<OFtpFileResponse>;
 
-export type OFtpFileResponse = SResponse<
-    OFtpFileObject, // as SResponseOK
-    OFtpFileError   // as SResponseKO
->;
+export type OFtpFileResponse =
+  | SResponseOKObject<OFtpFileObject>
+  | SResponseKOObject<OFtpFileError>;
 
-interface SResponseOK { 
+interface SResponseOKObject { 
     status: true;
     filename: string;
     filepath: string;
 }
 
-interface SResponseKO { 
+interface SResponseKOObject { 
     status: false;
     error: {
         msg: string;
@@ -610,19 +603,18 @@ ftpClient.disconnect();
 await ftpClient.exists( filepathFrom: string, disconnectWhenError?: boolean ) 
     => Promise<OFtpExistResponse>;
 
-export type OFtpExistResponse = SResponse<
-    OFtpExistObject, // as SResponseOK
-    OFtpExistError   // as SResponseKO
->;
+export type OFtpExistResponse =
+  | SResponseOKObject<OFtpExistObject>
+  | SResponseKOObject<OFtpExistError>;
 
-interface SResponseOK { 
+interface SResponseOKObject { 
     status: true;
     filename: string;
     filepath: string;
     type: string;
 }
 
-interface SResponseKO { 
+interface SResponseKOObject { 
     status: false;
     error: {
         msg: string;
@@ -666,18 +658,17 @@ ftpClient.disconnect();
 await ftpClient.mkdir( folder, recursive?: boolean, strict?: boolean ) 
     => Promise<OFtpFolderResponse>;
 
-export type OFtpFolderResponse = SResponse<
-    OFtpFolderObject, // as SResponseOK
-    OFtpFolderError   // as SResponseKO
->;
+export type OFtpFolderResponse =
+  | SResponseOKObject<OFtpFolderObject>
+  | SResponseKOObject<OFtpFolderError>;
 
-interface SResponseOK { 
+interface SResponseOKObject { 
     status: true;
     foldername: string;
     folderpath: string;
 }
 
-interface SResponseKO { 
+interface SResponseKOObject { 
     status: false;
     error: {
         msg: string;
@@ -722,18 +713,17 @@ ftpClient.disconnect();
 await ftpClient.rmdir( folder, strict?: boolean ) 
     => Promise<OFtpFolderResponse>;
 
-export type OFtpFolderResponse = SResponse<
-    OFtpFolderObject, // as SResponseOK
-    OFtpFolderError   // as SResponseKO
->;
+export type OFtpFolderResponse =
+  | SResponseOKObject<OFtpFolderObject>
+  | SResponseKOObject<OFtpFolderError>;
 
-interface SResponseOK { 
+interface SResponseOKObject { 
     status: true;
     foldername: string;
     folderpath: string;
 }
 
-interface SResponseKO { 
+interface SResponseKOObject { 
     status: false;
     error: {
         msg: string;

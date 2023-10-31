@@ -1,14 +1,15 @@
-const { OFtp } = require('../dist');
-const fsExtra = require('fs-extra');
-const FtpSrv = require('@nearst/ftp');
+import OFtp from '../dist';
+import FtpSrv from '@nearst/ftp';
+import * as fsExtra from 'fs-extra';
 
-const { DIRNAME, FTPCONFIG_DEFAULT } = require('./utils');
+// @ts-ignore
+import { DIRNAME, FTPCONFIG_DEFAULT } from './utils';
 
 //
 
-const FTPCONFIG = { ...FTPCONFIG_DEFAULT, port: 33_337 };
-const SERVER_PATH = `${DIRNAME}/srv-rmdir`;
-let ftpServer;
+const FTPCONFIG = { ...FTPCONFIG_DEFAULT, port: 34_337 };
+const SERVER_PATH = `${DIRNAME}/srv-rmdir-ts`;
+let ftpServer: FtpSrv;
 
 beforeAll(async () => {
   if (await fsExtra.exists(SERVER_PATH)) {
@@ -19,13 +20,13 @@ beforeAll(async () => {
   await fsExtra.mkdir(`${SERVER_PATH}/test`);
   await fsExtra.mkdir(`${SERVER_PATH}/chacho/loco/tio`, { recursive: true });
   await fsExtra.mkdir(`${SERVER_PATH}/foo/bar/baz`, { recursive: true });
-  await fsExtra.copy(`${__dirname}/zsilence2.pdf`, `${SERVER_PATH}/silence2.pdf`);
+  await fsExtra.copy(`${DIRNAME}/zsilence2.pdf`, `${SERVER_PATH}/silence2.pdf`);
 
   ftpServer = new FtpSrv({
     url: `${FTPCONFIG.protocol}://${FTPCONFIG.host}:${FTPCONFIG.port}`,
     pasv_url: FTPCONFIG.pasv_url,
   });
-  ftpServer.on('login', (data, resolve, _reject) => {
+  ftpServer.on('login', (_data, resolve, _reject) => {
     return resolve({ root: SERVER_PATH });
   });
   ftpServer.listen();
@@ -44,13 +45,13 @@ afterAll(async () => {
 //
 
 describe('rmdir OFtp', () => {
-  test('rmdir and no connected', async () => {
+  test('ts rmdir and no connected', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
-    const response = await ftpClient.rmdir();
+    const response = await ftpClient.rmdir('');
 
     expect(response.status).toBe(false);
-    if (response.status === true) {
+    if (response.status) {
       return;
     }
 
@@ -60,7 +61,7 @@ describe('rmdir OFtp', () => {
     );
   });
 
-  test('rmdir folder not exist', async () => {
+  test('ts rmdir folder not exist', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
@@ -68,7 +69,7 @@ describe('rmdir OFtp', () => {
     await ftpClient.disconnect();
 
     expect(response.status).toBe(true);
-    if (response.status === false) {
+    if (!response.status) {
       return;
     }
 
@@ -77,14 +78,14 @@ describe('rmdir OFtp', () => {
     expect(response.foldername).toBe('loco');
   });
 
-  test('rmdir folder not exist strict', async () => {
+  test('ts rmdir folder not exist strict', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
     const response = await ftpClient.rmdir('loco', true);
 
     expect(response.status).toBe(false);
-    if (response.status === true) {
+    if (response.status) {
       return;
     }
 
@@ -92,14 +93,14 @@ describe('rmdir OFtp', () => {
     expect(response.error.msg).toMatch(/(FTP Rmdir failed: ENOENT: no such file or directory,)/);
   });
 
-  test('rmdir folder with content', async () => {
+  test('ts rmdir folder with content', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
     const response = await ftpClient.rmdir('chacho');
 
     expect(response.status).toBe(false);
-    if (response.status === true) {
+    if (response.status) {
       return;
     }
 
@@ -107,7 +108,7 @@ describe('rmdir OFtp', () => {
     expect(response.error.msg).toMatch(/(FTP Rmdir failed: ENOTEMPTY: directory not empty,)/);
   });
 
-  test('rmdir folder', async () => {
+  test('ts rmdir folder', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
@@ -115,7 +116,7 @@ describe('rmdir OFtp', () => {
     await ftpClient.disconnect();
 
     expect(response.status).toBe(true);
-    if (response.status === false) {
+    if (!response.status) {
       return;
     }
 
@@ -123,7 +124,7 @@ describe('rmdir OFtp', () => {
     expect(response.folderpath).toBe('test');
   });
 
-  test('rmdir folder in folder', async () => {
+  test('ts rmdir folder in folder', async () => {
     const ftpClient = new OFtp(FTPCONFIG);
 
     await ftpClient.connect();
@@ -131,7 +132,7 @@ describe('rmdir OFtp', () => {
     await ftpClient.disconnect();
 
     expect(response.status).toBe(true);
-    if (response.status === false) {
+    if (!response.status) {
       return;
     }
 
