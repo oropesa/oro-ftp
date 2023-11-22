@@ -14,7 +14,7 @@ Example:
 
 ```js
 // cjs
-const OFtp = require( 'oro-ftp' );
+const { OFtp } = require( 'oro-ftp' );
 
 // mjs, ts
 import OFtp from 'oro-ftp';
@@ -57,22 +57,23 @@ _responseKO_ is an object with 3 fields:
 
 ````ts
 interface responseKO {
-    status: false;
-    error: {
-        msg: string;         // explaining the error
-        code: OFtpErrorCode; // string
-        // ...               // other data, it depends on method error
-    },
-    tryAgain: boolean;
+  status: false;
+  error: {
+    msg: string;         // explaining the error
+    code: OFtpErrorCode; // string
+    // ...               // other data, it depends on method error
+  },
+  tryAgain: boolean;
 }
 
 type OFtpErrorCode =
-    | 'UNCONNECTED'
-    | 'ENOTFOUND'
-    | 'ENTIMEOUT'
-    | 'ENOENT'
-    | 'EEXIST'
-    | 'ENOTEMPTY';
+  | 'ECONNREFUSED'
+  | 'UNCONNECTED'
+  | 'ENOTFOUND'
+  | 'ENTIMEOUT'
+  | 'ENOENT'
+  | 'EEXIST'
+  | 'ENOTEMPTY';
 ````
 
 ### new OFtp()
@@ -80,12 +81,12 @@ type OFtpErrorCode =
 new OFtp( config?: OFtpConfig );
 
 type OFtpConfig = PromiseFtp.Options &  {
-    host?: string;
-    port?: number;
-    user?: string;
-    password?: string;
-    readyTimeout?: number;          // def: 3000
-    disconnectWhenError?: boolean;  // def: true
+  host?: string;
+  port?: number;
+  user?: string;
+  password?: string;
+  readyTimeout?: number;          // def: 3000
+  disconnectWhenError?: boolean;  // def: true
 }
 ```
 
@@ -97,12 +98,12 @@ In addition, `config` has param `disconnectWhenError` (default `true`), so when 
 const OFtp = require( 'oro-ftp' );
 
 const config = {
-    host: 'custom-server.com',
-    port: 21,
-    user: 'custom-user',
-    password: 'custom-password',
-    readyTimeout: 3000,
-    disconnectWhenError: true
+  host: 'custom-server.com',
+  port: 21,
+  user: 'custom-user',
+  password: 'custom-password',
+  readyTimeout: 3000,
+  disconnectWhenError: true
 }
 
 const ftpClient = new OFtp( config );
@@ -126,12 +127,12 @@ const promiseFtp = ftpClient.getClient();
 await ftpClient.connect( config?: OFtpConfig ) => Promise<OFtpConnectResponse>;
 
 type OFtpConfig = PromiseFtp.Options &  {
-    host?: string;
-    port?: number;
-    user?: string;
-    password?: string;
-    readyTimeout?: number;          // def: 3000
-    disconnectWhenError?: boolean;  // def: true
+  host?: string;
+  port?: number;
+  user?: string;
+  password?: string;
+  readyTimeout?: number;          // def: 3000
+  disconnectWhenError?: boolean;  // def: true
 }
 
 export type OFtpConnectResponse = 
@@ -139,23 +140,23 @@ export type OFtpConnectResponse =
   | SResponseKOObjectAgain<OFtpConnectError>;
 
 interface SResponseOKBasic { 
-    status: true;
+  status: true;
 }
 
 interface SResponseKOObjectAgain { 
-    status: false;
-    error: {
-        msg: string;
-        code: OFtpErrorCode;
-        config: OFtpConfig;
-    },
-    tryAgain: boolean;
-}
-
-interface OFtpConnectError {
+  status: false;
+  error: {
     msg: string;
     code: OFtpErrorCode;
     config: OFtpConfig;
+  },
+  tryAgain: boolean;
+}
+
+interface OFtpConnectError {
+  msg: string;
+  code: OFtpErrorCode;
+  config: OFtpConfig;
 }
 ```
 
@@ -180,11 +181,11 @@ export type OFtpDisconnectResponse =
   | SResponseKOBasic;
 
 interface SResponseOKBasic { 
-    status: true;
+  status: true;
 }
 
 interface SResponseKOBasic { 
-    status: false;
+  status: false;
 }
 ```
 
@@ -210,38 +211,38 @@ console.log( disconnected );
 ### await .upload()
 ```ts
 await ftpClient.upload( filepathFrom: string, filepathTo?: string ) 
-    => Promise<OFtpFileResponse>;
+  => Promise<OFtpFileResponse>;
 
 export type OFtpFileResponse =
   | SResponseOKObject<OFtpFileObject> 
   | SResponseKOObject<OFtpFileError>;
 
 interface SResponseOKObject { 
-    status: true;
-    filename: string;
-    filepath: string;
+  status: true;
+  filename: string;
+  filepath: string;
 }
 
 interface SResponseKOObject { 
-    status: false;
-    error: {
-        msg: string;
-        filepathFrom: string;
-        filepathTo?: string;
-        code?: OFtpErrorCode;
-    }
-}
-
-interface OFtpFileObject {
-    filename: string;
-    filepath: string;
-}
-
-interface OFtpFileError {
+  status: false;
+  error: {
     msg: string;
     filepathFrom: string;
     filepathTo?: string;
     code?: OFtpErrorCode;
+  }
+}
+
+interface OFtpFileObject {
+  filename: string;
+  filepath: string;
+}
+
+interface OFtpFileError {
+  msg: string;
+  filepathFrom: string;
+  filepathTo?: string;
+  code?: OFtpErrorCode;
 }
 ```
 
@@ -265,53 +266,53 @@ await ftpClient.disconnect();
 ### await .uploadOne()
 ```ts
 await ftpClient.upload( filepathFrom: string, filepathTo?: string ) 
-    => Promise<OFtpUploadOneResponse>;
+  => Promise<OFtpUploadOneResponse>;
 
 export type OFtpUploadOneResponse =
   | SResponseOKObject<OFtpFileObject>
   | SResponseKOObject<OFtpFileError | OFtpConnectError>;
 
 interface SResponseOKObject { 
-    status: true;
-    filename: string;
-    filepath: string;
+  status: true;
+  filename: string;
+  filepath: string;
 }
 
 type SResponseKOObject =
-    | { 
-        status: false;
-        error: {
-          msg: string;
-          filepathFrom: string;
-          filepathTo?: string;
-          code?: OFtpErrorCode;
-        }
+  | { 
+      status: false;
+      error: {
+        msg: string;
+        filepathFrom: string;
+        filepathTo?: string;
+        code?: OFtpErrorCode;
       }
-    | {
-        status: false;
-        error: {
-          msg: string;
-          code: OFtpErrorCode;
-          config: OFtpConfig;
-        }
+    }
+  | {
+      status: false;
+      error: {
+        msg: string;
+        code: OFtpErrorCode;
+        config: OFtpConfig;
       }
+    }
 
 interface OFtpFileObject {
-    filename: string;
-    filepath: string;
+  filename: string;
+  filepath: string;
 }
 
 interface OFtpFileError {
-    msg: string;
-    filepathFrom: string;
-    filepathTo?: string;
-    code?: OFtpErrorCode;
+  msg: string;
+  filepathFrom: string;
+  filepathTo?: string;
+  code?: OFtpErrorCode;
 }
 
 interface OFtpConnectError {
-    msg: string;
-    code: OFtpErrorCode;
-    config: OFtpConfig;
+  msg: string;
+  code: OFtpErrorCode;
+  config: OFtpConfig;
 }
 ```
 
@@ -331,38 +332,38 @@ console.log( uploaded );
 ### await .download()
 ```ts
 await ftpClient.download( filepathFrom: string, filepathTo?: string ) 
-    => Promise<OFtpFileResponse>;
+  => Promise<OFtpFileResponse>;
 
 export type OFtpFileResponse =
   | SResponseOKObject<OFtpFileObject>
   | SResponseKOObject<OFtpFileError>;
 
 interface SResponseOKObject { 
-    status: true;
-    filename: string;
-    filepath: string;
+  status: true;
+  filename: string;
+  filepath: string;
 }
 
 interface SResponseKOObject { 
-    status: false;
-    error: {
-        msg: string;
-        filepathFrom: string;
-        filepathTo?: string;
-        code?: OFtpErrorCode;
-    }
-}
-
-interface OFtpFileObject {
-    filename: string;
-    filepath: string;
-}
-
-interface OFtpFileError {
+  status: false;
+  error: {
     msg: string;
     filepathFrom: string;
     filepathTo?: string;
     code?: OFtpErrorCode;
+  }
+}
+
+interface OFtpFileObject {
+  filename: string;
+  filepath: string;
+}
+
+interface OFtpFileError {
+  msg: string;
+  filepathFrom: string;
+  filepathTo?: string;
+  code?: OFtpErrorCode;
 }
 ```
 
@@ -386,12 +387,12 @@ ftpClient.disconnect();
 ### await .list()
 ```ts
 await ftpClient.list( folder?: string, filters?: OFtpListFilters ) 
-    => Promise<OFtpListResponse>;
+  => Promise<OFtpListResponse>;
 
 interface OFtpListFilters {
-    onlyFiles?: boolean | undefined;        // def: false
-    onlyFolders?: boolean | undefined;      // def: false
-    pattern?: string | RegExp | undefined;
+  onlyFiles?: boolean | undefined;        // def: false
+  onlyFolders?: boolean | undefined;      // def: false
+  pattern?: string | RegExp | undefined;
 }
 
 export type OFtpListResponse =
@@ -399,50 +400,50 @@ export type OFtpListResponse =
   | SResponseKOObject<OFtpListError>;
 
 interface SResponseOKObject { 
-    status: true;
-    count: number; // list.length
-    list: OFtpListFile[];
+  status: true;
+  count: number; // list.length
+  list: OFtpListFile[];
 }
 
 interface SResponseKOObject { 
-    status: false;
-    error: {
-        msg: string;
-        folder: string;
-        filters: OFtpListFilters;
-        code?: OFtpErrorCode;
-    }
+  status: false;
+  error: {
+    msg: string;
+    folder: string;
+    filters: OFtpListFilters;
+    code?: OFtpErrorCode;
+  }
 }
 
 export interface OFtpListFile {
-    path: string;
-    name: string;
-    type: OFtpListFileType;
-    date: Date;
-    size: number;
-    owner: string;
+  path: string;
+  name: string;
+  type: OFtpListFileType;
+  date: Date;
+  size: number;
+  owner: string;
+  group: string;
+  target: string | undefined;
+  rights: {
+    user: string;
     group: string;
-    target: string | undefined;
-    rights: {
-        user: string;
-        group: string;
-        other: string;
-    }
+    other: string;
+  }
 }
 
 type OFtpListFileType = '-' | 'd' | 'l'; 
 // 'file' | 'folder' | 'symlink'
 
 export interface OFtpListObject {
-    count: number; // list.length
-    list: OFtpListFile[];
+  count: number; // list.length
+  list: OFtpListFile[];
 }
 
 export interface OFtpListError {
-    msg: string;
-    folder: string;
-    filters: OFtpListFilters;
-    code?: OFtpErrorCode;
+  msg: string;
+  folder: string;
+  filters: OFtpListFilters;
+  code?: OFtpErrorCode;
 }
 ```
 
@@ -474,59 +475,59 @@ foo* => foo, foobar, foobaz
 response example
 ```js
 {
-    status: true,
-    count: // list.length
-    list: [
-        {
-            type: // file type(-, d, l)
-            name: // file name
-            path: // file path
-            date: // file date of modified time
-            size: // file size
-            rights: { user: 'rwx', group: 'rwx', other: 'rwx' }
-            owner: // user number ID
-            group: // group number ID
-        },
-        ...
-    ]
+  status: true,
+  count: // list.length
+  list: [
+    {
+      type: // file type(-, d, l)
+      name: // file name
+      path: // file path
+      date: // file date of modified time
+      size: // file size
+      rights: { user: 'rwx', group: 'rwx', other: 'rwx' }
+      owner: // user number ID
+      group: // group number ID
+    },
+    ...
+  ]
 }
 ```
 
 ### await .move()
 ```ts
 await ftpClient.move( filepathFrom: string, filepathTo?: string ) 
-    => Promise<OFtpFileResponse>;
+  => Promise<OFtpFileResponse>;
 
 export type OFtpFileResponse =
   | SResponseOKObject<OFtpFileObject> 
   | SResponseKOObject<OFtpFileError>;
 
 interface SResponseOKObject { 
-    status: true;
-    filename: string;
-    filepath: string;
+  status: true;
+  filename: string;
+  filepath: string;
 }
 
 interface SResponseKOObject { 
-    status: false;
-    error: {
-        msg: string;
-        filepathFrom: string;
-        filepathTo?: string;
-        code?: OFtpErrorCode;
-    }
-}
-
-interface OFtpFileObject {
-    filename: string;
-    filepath: string;
-}
-
-interface OFtpFileError {
+  status: false;
+  error: {
     msg: string;
     filepathFrom: string;
     filepathTo?: string;
     code?: OFtpErrorCode;
+  }
+}
+
+interface OFtpFileObject {
+  filename: string;
+  filepath: string;
+}
+
+interface OFtpFileError {
+  msg: string;
+  filepathFrom: string;
+  filepathTo?: string;
+  code?: OFtpErrorCode;
 }
 ```
 
@@ -548,36 +549,36 @@ ftpClient.disconnect();
 ### await .delete()
 ```ts
 await ftpClient.delete( filepathFrom: string, strict?: boolean ) 
-    => Promise<OFtpFileResponse>;
+  => Promise<OFtpFileResponse>;
 
 export type OFtpFileResponse =
   | SResponseOKObject<OFtpFileObject>
   | SResponseKOObject<OFtpFileError>;
 
 interface SResponseOKObject { 
-    status: true;
-    filename: string;
-    filepath: string;
+  status: true;
+  filename: string;
+  filepath: string;
 }
 
 interface SResponseKOObject { 
-    status: false;
-    error: {
-        msg: string;
-        filepathFrom: string;
-        code?: OFtpErrorCode;
-    }
-}
-
-interface OFtpFileObject {
-    filename: string;
-    filepath: string;
-}
-
-interface OFtpFileError {
+  status: false;
+  error: {
     msg: string;
     filepathFrom: string;
     code?: OFtpErrorCode;
+  }
+}
+
+interface OFtpFileObject {
+  filename: string;
+  filepath: string;
+}
+
+interface OFtpFileError {
+  msg: string;
+  filepathFrom: string;
+  code?: OFtpErrorCode;
 }
 ```
 
@@ -601,40 +602,40 @@ ftpClient.disconnect();
 ### await .exists()
 ```ts
 await ftpClient.exists( filepathFrom: string, disconnectWhenError?: boolean ) 
-    => Promise<OFtpExistResponse>;
+  => Promise<OFtpExistResponse>;
 
 export type OFtpExistResponse =
   | SResponseOKObject<OFtpExistObject>
   | SResponseKOObject<OFtpExistError>;
 
 interface SResponseOKObject { 
-    status: true;
-    filename: string;
-    filepath: string;
-    type: string;
+  status: true;
+  filename: string;
+  filepath: string;
+  type: string;
 }
 
 interface SResponseKOObject { 
-    status: false;
-    error: {
-        msg: string;
-        filename: string;
-        filepath: string;
-        code?: OFtpErrorCode;
-    }
-}
-
-interface OFtpExistObject {
-    filename: string;
-    filepath: string;
-    type: string;
-}
-
-interface OFtpExistError {
+  status: false;
+  error: {
     msg: string;
     filename: string;
     filepath: string;
     code?: OFtpErrorCode;
+  }
+}
+
+interface OFtpExistObject {
+  filename: string;
+  filepath: string;
+  type: string;
+}
+
+interface OFtpExistError {
+  msg: string;
+  filename: string;
+  filepath: string;
+  code?: OFtpErrorCode;
 }
 ```
 
@@ -656,36 +657,36 @@ ftpClient.disconnect();
 ### await .mkdir()
 ```ts
 await ftpClient.mkdir( folder, recursive?: boolean, strict?: boolean ) 
-    => Promise<OFtpFolderResponse>;
+  => Promise<OFtpFolderResponse>;
 
 export type OFtpFolderResponse =
   | SResponseOKObject<OFtpFolderObject>
   | SResponseKOObject<OFtpFolderError>;
 
 interface SResponseOKObject { 
-    status: true;
-    foldername: string;
-    folderpath: string;
+  status: true;
+  foldername: string;
+  folderpath: string;
 }
 
 interface SResponseKOObject { 
-    status: false;
-    error: {
-        msg: string;
-        filepathFrom: string;
-        code?: OFtpErrorCode;
-    }
+  status: false;
+  error: {
+    msg: string;
+    filepathFrom: string;
+    code?: OFtpErrorCode;
+  }
 }
 
 interface OFtpFolderObject {
-    foldername: string;
-    folderpath: string;
+  foldername: string;
+  folderpath: string;
 }
 
 interface OFtpFolderError {
-    msg: string;
-    folder: string;
-    code?: OFtpErrorCode;
+  msg: string;
+  folder: string;
+  code?: OFtpErrorCode;
 }
 ```
 
@@ -711,36 +712,36 @@ ftpClient.disconnect();
 ### await .rmdir()
 ```ts
 await ftpClient.rmdir( folder, strict?: boolean ) 
-    => Promise<OFtpFolderResponse>;
+  => Promise<OFtpFolderResponse>;
 
 export type OFtpFolderResponse =
   | SResponseOKObject<OFtpFolderObject>
   | SResponseKOObject<OFtpFolderError>;
 
 interface SResponseOKObject { 
-    status: true;
-    foldername: string;
-    folderpath: string;
+  status: true;
+  foldername: string;
+  folderpath: string;
 }
 
 interface SResponseKOObject { 
-    status: false;
-    error: {
-        msg: string;
-        filepathFrom: string;
-        code?: OFtpErrorCode;
-    }
+  status: false;
+  error: {
+    msg: string;
+    filepathFrom: string;
+    code?: OFtpErrorCode;
+  }
 }
 
 interface OFtpFolderObject {
-    foldername: string;
-    folderpath: string;
+  foldername: string;
+  folderpath: string;
 }
 
 interface OFtpFolderError {
-    msg: string;
-    folder: string;
-    code?: OFtpErrorCode;
+  msg: string;
+  folder: string;
+  code?: OFtpErrorCode;
 }
 ```
 
