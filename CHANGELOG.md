@@ -1,3 +1,45 @@
+## 2.1.0 / 2024-07-30
+- Re-init `package-lock.json`.
+- Added _coverage_ for testing.
+- Added _watcher_ for coding.
+- Updated _eslint_ to flat `eslint.config.js`.
+- Improved `OSftp.list` to return always a sortened list by name.
+- Improved `OSftp.rmdir` adding second param `recursive` (as _oro-sftp_ package).
+- Improved _github cicd_ adding a sftp-server as a service for testing.
+- Improved _github cicd_ replacing `actions/--@v3` by `actions/--@v4`, and replacing `npm install` to `npm ci`.
+- Improved `export` declarations in index files.
+- Enhanced _linter_ adding some extensions.
+- Enhanced _prettier_ adding import-sorter.
+- Updated _prettier_ `printWidth: 120`
+- Simplified `tsup.config.ts`.
+- Moved _tests_ inside `src` and simplified `*.test.ts`.
+- Updated libs:
+  - `fs-extra` from `v11.1.1` to `v11.2.0`.
+  - `oro-functions` from `v2.0.2` to `v2.3.1`.
+- Added _dev_ libs:
+  - `@eslint/js`
+  - `@trivago/prettier-plugin-sort-imports`
+  - `eslint-config-prettier`
+  - `eslint-plugin-jest`
+  - `globals`
+  - `nodemon`
+  - `typescript-eslint`
+- Updated _dev_ libs:
+  - `@babel/core` from `v7.23.3` to `v7.24.9`.
+  - `@babel/preset-env` from `v7.23.` to `v7.25.0`.
+  - `@babel/preset-typescript` from `v7.23.3` to `v7.24.7`.
+  - `@types/jest` from `v29.5.10` to `v29.5.12`.
+  - `eslint` from `v8.54.0` to `v^^8.57.0`.
+  - `eslint-plugin-unicorn` from `v49.0.0` to `v55.0.0`.
+  - `husky` from `v8.0.3` to `v9.1.3`.
+  - `prettier` from `v3.1.0` to `v3.3.3`.
+  - `tsup` from `v8.0.1` to `v8.2.3`.
+  - `typescript` from `v5.2.2` to `v5.5.4`.
+- Removed _dev_ libs:
+  - `@typescript-eslint/eslint-plugin` removed.
+  - `@typescript-eslint/parser` removed.
+  - `eslint-config-alloy` removed.
+
 ## 2.0.1 / 2023-11-22
 * Fixed _github action_ `npm_publish_on_pr_merge_to_master`.
 * Updated libs:

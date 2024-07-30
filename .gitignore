@@ -1,4 +1,8 @@
 .idea/
+coverage/
 dist/
 node_modules/
+tests/config.json
+src/__tests__/config.json
+src/__tests__/config-server.json
 tmp.js
