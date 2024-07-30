@@ -1,0 +1,6 @@
+{
+  "host": "IPADDRESS",
+  "port": 21,
+  "user": "user",
+  "password": "password"
+}

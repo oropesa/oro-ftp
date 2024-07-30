@@ -1,16 +1,25 @@
 # Oro Ftp
 
+* [Overview](#overview)
+* [Installation](#installation)
+* [Example](#example)
+* [Methods](#methods)
+
+## Overview
+
 OroFtp Class is a wrapper of promise-ftp to simplify their use.
 
 [promise-ftp](https://www.npmjs.com/package/promise-ftp) is a FTP client module for node.js that provides an asynchronous interface for communicating with a FTP server.
 
 To have the same interface using SFTP, you can utilize the OroSFtp class available through [OroSFtp package](https://www.npmjs.com/package/oro-sftp).
 
+## Installation
+
 ```shell
 npm install oro-ftp
 ```
 
-Example:
+## Example:
 
 ```js
 // cjs
@@ -34,6 +43,8 @@ console.log( ftpUpload );
 
 ## Methods
 
+<hr>
+
 * [Error Code List](#error-code-list)
 * [new OFtp()](#new-oftp)
 * [.getClient()](#getclient)
@@ -48,6 +59,9 @@ console.log( ftpUpload );
 * [await .exists()](#await-exists)
 * [await .mkdir()](#await-mkdir)
 * [await .rmdir()](#await-rmdir)
+* [Testing](#testing)
+
+<hr>
 
 ### Error Code List
 
@@ -75,6 +89,8 @@ type OFtpErrorCode =
   | 'EEXIST'
   | 'ENOTEMPTY';
 ````
+
+<hr>
 
 ### new OFtp()
 ```ts
@@ -109,6 +125,8 @@ const config = {
 const ftpClient = new OFtp( config );
 ```
 
+<hr>
+
 ### .getClient()
 ```ts
 ftpClient.getClient(): PromiseFtp;
@@ -121,6 +139,8 @@ const ftpClient = new OFtp( config );
 
 const promiseFtp = ftpClient.getClient();
 ```
+
+<hr>
 
 ### await .connect()
 ```ts
@@ -172,6 +192,8 @@ console.log( connected );
 // -> { status: true }
 ```
 
+<hr>
+
 ### await .disconnect()
 ```ts
 await ftpClient.disconnect() => Promise<OFtpDisconnectResponse>;
@@ -207,6 +229,8 @@ const disconnected = await ftpClient.disconnect();
 console.log( disconnected );
 // -> { status: true }
 ```
+
+<hr>
 
 ### await .upload()
 ```ts
@@ -262,6 +286,8 @@ console.log( uploaded );
 
 await ftpClient.disconnect();
 ```
+
+<hr>
 
 ### await .uploadOne()
 ```ts
@@ -329,6 +355,8 @@ console.log( uploaded );
 // -> { status: true, filename: 'custom-file.pdf', ... }
 ```
 
+<hr>
+
 ### await .download()
 ```ts
 await ftpClient.download( filepathFrom: string, filepathTo?: string ) 
@@ -383,6 +411,8 @@ console.log( downloaded );
 
 ftpClient.disconnect();
 ```
+
+<hr>
 
 ### await .list()
 ```ts
@@ -493,6 +523,8 @@ response example
 }
 ```
 
+<hr>
+
 ### await .move()
 ```ts
 await ftpClient.move( filepathFrom: string, filepathTo?: string ) 
@@ -546,6 +578,8 @@ console.log( moved );
 ftpClient.disconnect();
 ```
 
+<hr>
+
 ### await .delete()
 ```ts
 await ftpClient.delete( filepathFrom: string, strict?: boolean ) 
@@ -598,6 +632,8 @@ console.log( deleted );
 
 ftpClient.disconnect();
 ```
+
+<hr>
 
 ### await .exists()
 ```ts
@@ -654,6 +690,8 @@ console.log( exists );
 ftpClient.disconnect();
 ```
 
+<hr>
+
 ### await .mkdir()
 ```ts
 await ftpClient.mkdir( folder, recursive?: boolean, strict?: boolean ) 
@@ -709,9 +747,11 @@ console.log( created );
 ftpClient.disconnect();
 ```
 
+<hr>
+
 ### await .rmdir()
 ```ts
-await ftpClient.rmdir( folder, strict?: boolean ) 
+await ftpClient.rmdir( folder, recursive?: boolean, strict?: boolean ) 
   => Promise<OFtpFolderResponse>;
 
 export type OFtpFolderResponse =
@@ -747,6 +787,8 @@ interface OFtpFolderError {
 
 `rmdir` is the action to remove folders in _ftp folder_.
 
+When `recursive = true` it allows to remove the folder-content too.
+
 When `strict = false` and not found the folder, it returns `{ status: true }`.
 
 ```js
@@ -760,4 +802,32 @@ console.log( removed );
 // -> { status: true, foldername: 'custom-folder', ... }
 
 ftpClient.disconnect();
+```
+
+
+## Testing
+
+If you want to run `npm run test` in local, first you need to run a ftp server (i.e. via docker):
+
+```bash
+# 'stilliard/pure-ftpd' image
+> docker run --name oro-ftp-server \
+    -p 2221:21 -p 10000-10009:10000-10009 --expose=10000-10009 \
+    -e FTP_USER_NAME=oftp_user \
+    -e FTP_USER_PASS=oftp_pass \
+    -e FTP_USER_HOME=/home/osftp_folder \
+    -e FTP_PASSIVE_PORTS=10000:10009 \
+    -e PUBLICHOST=localhost
+```
+
+Then, you have to declare your own `./test/config.json`, <br>
+<small>You can _copypaste_ it from `./test/config-default.json`</small>
+
+```json
+{
+  "host": "localhost",
+  "port": 2221,
+  "user": "oftp_user",
+  "password": "oftp_pass"
+}
 ```

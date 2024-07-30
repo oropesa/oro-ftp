@@ -8,23 +8,47 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      sftpserver:
+        image: stilliard/pure-ftpd
+        env:
+          FTP_USER_NAME: ${{ secrets.TEST_FTP_USER }}
+          FTP_USER_PASS: ${{ secrets.TEST_FTP_PASSWORD }}
+          FTP_USER_HOME: ${{ secrets.TEST_FTP_FOLDER }}
+          FTP_PASSIVE_PORTS: 10000:10009
+          PUBLICHOST: ${{ secrets.TEST_FTP_HOST }}
+        ports:
+          - 2221:21
+          - 10000-10009:10000-10009
+        options:
+          --expose=10000-10009
+
     steps:
       - name: "Checkout Code"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: "Install Node.js and jq"
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: "Install Dependencies"
-        run: npm install
+        run: npm ci
 
       - name: "Run Build"
         run: npm run build
 
       - name: "Run Linter"
         run: npm run lint
+
+      - name: "Create config file"
+        env:
+          HOST: ${{ secrets.TEST_FTP_HOST }}
+          PORT: ${{ secrets.TEST_FTP_PORT }}
+          USER: ${{ secrets.TEST_FTP_USER }}
+          PASS: ${{ secrets.TEST_FTP_PASSWORD }}
+        run: |
+          echo '{ "host": "${{ env.HOST }}", "port": "${{ env.PORT }}", "user": "${{ env.USER }}", "password": "${{ env.PASS }}" }' > src/__tests__/config.json
 
       - name: "Run Tests"
         run: npm run test
@@ -33,12 +57,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Code"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: "Install Node.js and jq"
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
