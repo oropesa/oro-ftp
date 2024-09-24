@@ -120,7 +120,9 @@ export class OFtp {
     }
 
     if (!(await pathExists(filepathOrigin))) {
-      this.#config!.disconnectWhenError && (await this.disconnect());
+      if (this.#config!.disconnectWhenError) {
+        await this.disconnect();
+      }
       return Ofn.setResponseKO(`FTP Upload failed: File (From) to upload not exist.`, {
         filepathFrom: filepathOrigin,
         filepathTo: filepathDestiny,
@@ -129,7 +131,9 @@ export class OFtp {
     }
 
     if (await Ofn.pathIsFolder(filepathOrigin)) {
-      this.#config!.disconnectWhenError && (await this.disconnect());
+      if (this.#config!.disconnectWhenError) {
+        await this.disconnect();
+      }
       return Ofn.setResponseKO(`FTP Upload failed: File (From) to upload is a directory.`, {
         filepathFrom: filepathOrigin,
         filepathTo: filepathDestiny,
@@ -146,7 +150,9 @@ export class OFtp {
         });
       })
       .catch(async (error: Error) => {
-        this.#config!.disconnectWhenError && (await this.disconnect());
+        if (this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
 
         const { msg, code } = getMsgAndCodeByError(error);
         return Ofn.setResponseKO(`FTP Upload failed: ${msg}.`, {
@@ -173,7 +179,9 @@ export class OFtp {
     }
 
     if (!(await pathExists(Ofn.getFolderByPath(filepathDestiny)))) {
-      this.#config!.disconnectWhenError && (await this.disconnect());
+      if (this.#config!.disconnectWhenError) {
+        await this.disconnect();
+      }
       return Ofn.setResponseKO(`FTP Download failed: Folder (From) to download not exist.`, {
         filepathFrom,
         filepathTo: filepathDestiny,
@@ -212,7 +220,9 @@ export class OFtp {
         return await end.catch((error) => error);
       })
       .catch(async (error: Error | SResponseKOObject<OFtpFileError>) => {
-        this.#config!.disconnectWhenError && (await this.disconnect());
+        if (this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
 
         if ('status' in error && Ofn.isBoolean(error.status)) {
           return error;
@@ -237,8 +247,12 @@ export class OFtp {
     };
 
     let listFolder = folder ? folder : '';
-    listFolder && listFolder[0] === '/' && (listFolder = `.${folder}`);
-    listFolder && listFolder.slice(-1) !== '/' && (listFolder += '/');
+    if (listFolder && listFolder[0] === '/') {
+      listFolder = `.${folder}`;
+    }
+    if (listFolder && listFolder.slice(-1) !== '/') {
+      listFolder += '/';
+    }
 
     const folderPath = listFolder.indexOf('./') === 0 ? listFolder.slice(2) : listFolder;
 
@@ -295,7 +309,9 @@ export class OFtp {
         return Ofn.setResponseOK({ count: list.length, list });
       })
       .catch(async (error: Error) => {
-        this.#config!.disconnectWhenError && (await this.disconnect());
+        if (this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
 
         const { msg, code } = getMsgAndCodeByError(error);
 
@@ -326,7 +342,9 @@ export class OFtp {
         });
       })
       .catch(async (error: Error) => {
-        this.#config!.disconnectWhenError && (await this.disconnect());
+        if (this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
 
         const { msg, code } = getMsgAndCodeByError(error);
 
@@ -376,7 +394,9 @@ export class OFtp {
               });
         }
 
-        this.#config!.disconnectWhenError && (await this.disconnect());
+        if (this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
 
         const sanitizeCode = msg.includes('Invalid argument') ? 'ENOENT' : code;
         return Ofn.setResponseKO(`FTP Delete failed: ${msg}.`, { filepathFrom, code: sanitizeCode });
@@ -420,8 +440,12 @@ export class OFtp {
             });
       })
       .catch(async (error) => {
-        Ofn.isBoolean(disconnectWhenError) && disconnectWhenError && (await this.disconnect());
-        !Ofn.isBoolean(disconnectWhenError) && this.#config!.disconnectWhenError && (await this.disconnect());
+        if (Ofn.isBoolean(disconnectWhenError) && disconnectWhenError) {
+          await this.disconnect();
+        }
+        if (!Ofn.isBoolean(disconnectWhenError) && this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
 
         const { msg, code } = getMsgAndCodeByError(error);
 
@@ -443,7 +467,9 @@ export class OFtp {
     }
 
     if (!folder) {
-      this.#config!.disconnectWhenError && (await this.disconnect());
+      if (this.#config!.disconnectWhenError) {
+        await this.disconnect();
+      }
       return Ofn.setResponseKO(`FTP Mkdir failed: param folder is required.`, { folder });
     }
 
@@ -453,7 +479,9 @@ export class OFtp {
     const response = await this.exists(folder, false);
     if (response.status && response.type === 'd') {
       if (strict) {
-        this.#config!.disconnectWhenError && (await this.disconnect());
+        if (this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
         return Ofn.setResponseKO(`FTP Mkdir failed: EEXIST: folder already exists, ${dirFolder}`, {
           folder: dirFolder,
           code: 'EEXIST',
@@ -469,7 +497,9 @@ export class OFtp {
     if (!recursive && Ofn.getFolderByPath(dirFolder).length > 0) {
       const response = await this.exists(Ofn.getFolderByPath(dirFolder), false);
       if (!response.status) {
-        this.#config!.disconnectWhenError && (await this.disconnect());
+        if (this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
         return Ofn.setResponseKO(`FTP Mkdir failed: ENOENT: no such directory, ${Ofn.getFolderByPath(dirFolder)}`, {
           folder: dirFolder,
           code: 'ENOENT',
@@ -486,7 +516,9 @@ export class OFtp {
         }),
       )
       .catch(async (error: Error) => {
-        this.#config!.disconnectWhenError && (await this.disconnect());
+        if (this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
 
         const { msg, code } = getMsgAndCodeByError(error);
         return Ofn.setResponseKO(`FTP Mkdir failed: ${msg}.`, { folder: dirFolder, code });
@@ -503,7 +535,9 @@ export class OFtp {
     }
 
     if (!folder) {
-      this.#config!.disconnectWhenError && (await this.disconnect());
+      if (this.#config!.disconnectWhenError) {
+        await this.disconnect();
+      }
       return Ofn.setResponseKO(`FTP Rmdir failed: param folder is required.`, { folder });
     }
 
@@ -524,7 +558,9 @@ export class OFtp {
             foldername: Ofn.getFilenameByPath(folder),
           });
         }
-        this.#config!.disconnectWhenError && (await this.disconnect());
+        if (this.#config!.disconnectWhenError) {
+          await this.disconnect();
+        }
 
         return Ofn.setResponseKO(`FTP Rmdir failed: ${msg}.`, { folder, code });
       });
@@ -570,8 +606,12 @@ export class OFtp {
       delete this.#config.readyTimeout;
     }
 
-    this.#config.connTimeout === undefined && (this.#config.connTimeout = 3000);
-    this.#config.disconnectWhenError === undefined && (this.#config.disconnectWhenError = true);
+    if (this.#config.connTimeout === undefined) {
+      this.#config.connTimeout = 3000;
+    }
+    if (this.#config.disconnectWhenError === undefined) {
+      this.#config.disconnectWhenError = true;
+    }
   }
 }
 
