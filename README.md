@@ -1,9 +1,9 @@
 # Oro Ftp
 
-* [Overview](#overview)
-* [Installation](#installation)
-* [Example](#example)
-* [Methods](#methods)
+- [Overview](#overview)
+- [Installation](#installation)
+- [Example](#example)
+- [Methods](#methods)
 
 ## Overview
 
@@ -28,11 +28,11 @@ const { OFtp } = require( 'oro-ftp' );
 // mjs, ts
 import OFtp from 'oro-ftp';
 
-const ftpClient = new OFtp( { 
-  host: 'custom-server.com', 
-  port: 21, 
-  user: 'custom-user', 
-  password: 'custom-password' 
+const ftpClient = new OFtp( {
+  host: 'custom-server.com',
+  port: 21,
+  user: 'custom-user',
+  password: 'custom-password'
 } );
 
 const ftpUpload = await ftpClient.uploadOne( `./folder-from/filename`, 'folder-to/filename' );
@@ -45,21 +45,21 @@ console.log( ftpUpload );
 
 <hr>
 
-* [Error Code List](#error-code-list)
-* [new OFtp()](#new-oftp)
-* [.getClient()](#getclient)
-* [await .connect()](#await-connect)
-* [await .disconnect()](#await-disconnect)
-* [await .upload()](#await-upload)
-* [await .uploadOne()](#await-uploadone)
-* [await .download()](#await-download)
-* [await .list()](#await-list)
-* [await .move()](#await-move)
-* [await .delete()](#await-delete)
-* [await .exists()](#await-exists)
-* [await .mkdir()](#await-mkdir)
-* [await .rmdir()](#await-rmdir)
-* [Testing](#testing)
+- [Error Code List](#error-code-list)
+- [new OFtp()](#new-oftp)
+- [.getClient()](#getclient)
+- [await .connect()](#await-connect)
+- [await .disconnect()](#await-disconnect)
+- [await .upload()](#await-upload)
+- [await .uploadOne()](#await-uploadone)
+- [await .download()](#await-download)
+- [await .list()](#await-list)
+- [await .move()](#await-move)
+- [await .delete()](#await-delete)
+- [await .exists()](#await-exists)
+- [await .mkdir()](#await-mkdir)
+- [await .rmdir()](#await-rmdir)
+- [Testing](#testing)
 
 <hr>
 
@@ -69,14 +69,14 @@ When an error happens, instead to throw an error, it's returned a managed _respo
 
 _responseKO_ is an object with 3 fields:
 
-````ts
+```ts
 interface responseKO {
   status: false;
   error: {
     msg: string;         // explaining the error
     code: OFtpErrorCode; // string
     // ...               // other data, it depends on method error
-  },
+  };
   tryAgain: boolean;
 }
 
@@ -88,11 +88,12 @@ type OFtpErrorCode =
   | 'ENOENT'
   | 'EEXIST'
   | 'ENOTEMPTY';
-````
+```
 
 <hr>
 
 ### new OFtp()
+
 ```ts
 new OFtp( config?: OFtpConfig );
 
@@ -111,7 +112,7 @@ As parameters, you can pass the server config data (you can also do it in `.conn
 In addition, `config` has param `disconnectWhenError` (default `true`), so when an error happens, connection closes automatically.
 
 ```js
-const OFtp = require( 'oro-ftp' );
+const OFtp = require('oro-ftp');
 
 const config = {
   host: 'custom-server.com',
@@ -119,15 +120,16 @@ const config = {
   user: 'custom-user',
   password: 'custom-password',
   readyTimeout: 3000,
-  disconnectWhenError: true
-}
+  disconnectWhenError: true,
+};
 
-const ftpClient = new OFtp( config );
+const ftpClient = new OFtp(config);
 ```
 
 <hr>
 
 ### .getClient()
+
 ```ts
 ftpClient.getClient(): PromiseFtp;
 ```
@@ -135,7 +137,7 @@ ftpClient.getClient(): PromiseFtp;
 If you want to use the library `promise-ftp`, you can get the object.
 
 ```js
-const ftpClient = new OFtp( config );
+const ftpClient = new OFtp(config);
 
 const promiseFtp = ftpClient.getClient();
 ```
@@ -143,6 +145,7 @@ const promiseFtp = ftpClient.getClient();
 <hr>
 
 ### await .connect()
+
 ```ts
 await ftpClient.connect( config?: OFtpConfig ) => Promise<OFtpConnectResponse>;
 
@@ -155,15 +158,15 @@ type OFtpConfig = PromiseFtp.Options &  {
   disconnectWhenError?: boolean;  // def: true
 }
 
-export type OFtpConnectResponse = 
+export type OFtpConnectResponse =
   | SResponseOKBasic
   | SResponseKOObjectAgain<OFtpConnectError>;
 
-interface SResponseOKBasic { 
+interface SResponseOKBasic {
   status: true;
 }
 
-interface SResponseKOObjectAgain { 
+interface SResponseKOObjectAgain {
   status: false;
   error: {
     msg: string;
@@ -185,69 +188,71 @@ When you create a connection, it's expected that you will disconnect it later.
 This method return a _response_, which is an object with `status: true | false`.
 
 ```js
-const ftpClient = new OFtp( config );
+const ftpClient = new OFtp(config);
 
 const connected = await ftpClient.connect();
-console.log( connected ); 
+console.log(connected);
 // -> { status: true }
 ```
 
 <hr>
 
 ### await .disconnect()
+
 ```ts
 await ftpClient.disconnect() => Promise<OFtpDisconnectResponse>;
 
-export type OFtpDisconnectResponse = 
-  | SResponseOKBasic 
+export type OFtpDisconnectResponse =
+  | SResponseOKBasic
   | SResponseKOBasic;
 
-interface SResponseOKBasic { 
+interface SResponseOKBasic {
   status: true;
 }
 
-interface SResponseKOBasic { 
+interface SResponseKOBasic {
   status: false;
 }
 ```
 
 **Note**: If you don't `.disconnect()` when finished, the script still running.
 
-**Note2**: There is a param in _config_ `disconnectWhenError` by default `true`. 
+**Note2**: There is a param in _config_ `disconnectWhenError` by default `true`.
 This means that if a method (like `upload` or `move`) return `status: false`, the _ftpClient_ will be disconnected automatically.
 
 This method return a _response_, which is an object with `status: true | false`.
 
 ```js
-const ftpClient = new OFtp( config );
+const ftpClient = new OFtp(config);
 
 const connected = await ftpClient.connect();
 
 // ...
 
 const disconnected = await ftpClient.disconnect();
-console.log( disconnected );
+console.log(disconnected);
 // -> { status: true }
 ```
 
 <hr>
 
 ### await .upload()
+
 ```ts
-await ftpClient.upload( filepathFrom: string, filepathTo?: string ) 
+await ftpClient.upload( filepathFrom: string, filepathTo?: string )
   => Promise<OFtpFileResponse>;
 
 export type OFtpFileResponse =
-  | SResponseOKObject<OFtpFileObject> 
+  | SResponseOKObject<OFtpFileObject>
   | SResponseKOObject<OFtpFileError>;
 
-interface SResponseOKObject { 
+interface SResponseOKObject {
   status: true;
   filename: string;
   filepath: string;
 }
 
-interface SResponseKOObject { 
+interface SResponseKOObject {
   status: false;
   error: {
     msg: string;
@@ -290,22 +295,23 @@ await ftpClient.disconnect();
 <hr>
 
 ### await .uploadOne()
+
 ```ts
-await ftpClient.upload( filepathFrom: string, filepathTo?: string ) 
+await ftpClient.upload( filepathFrom: string, filepathTo?: string )
   => Promise<OFtpUploadOneResponse>;
 
 export type OFtpUploadOneResponse =
   | SResponseOKObject<OFtpFileObject>
   | SResponseKOObject<OFtpFileError | OFtpConnectError>;
 
-interface SResponseOKObject { 
+interface SResponseOKObject {
   status: true;
   filename: string;
   filepath: string;
 }
 
 type SResponseKOObject =
-  | { 
+  | {
       status: false;
       error: {
         msg: string;
@@ -343,36 +349,38 @@ interface OFtpConnectError {
 ```
 
 If you want to upload just one file, you can use this method and inside:
+
 1. it's connected,
 2. file is uploaded,
 3. it's disconnected.
 
 ```js
-const ftpClient = new OFtp( { config } );
+const ftpClient = new OFtp({ config });
 
-const uploaded = await ftpClient.uploadOne( './files/custom-file.pdf' );
-console.log( uploaded );
+const uploaded = await ftpClient.uploadOne('./files/custom-file.pdf');
+console.log(uploaded);
 // -> { status: true, filename: 'custom-file.pdf', ... }
 ```
 
 <hr>
 
 ### await .download()
+
 ```ts
-await ftpClient.download( filepathFrom: string, filepathTo?: string ) 
+await ftpClient.download( filepathFrom: string, filepathTo?: string )
   => Promise<OFtpFileResponse>;
 
 export type OFtpFileResponse =
   | SResponseOKObject<OFtpFileObject>
   | SResponseKOObject<OFtpFileError>;
 
-interface SResponseOKObject { 
+interface SResponseOKObject {
   status: true;
   filename: string;
   filepath: string;
 }
 
-interface SResponseKOObject { 
+interface SResponseKOObject {
   status: false;
   error: {
     msg: string;
@@ -415,8 +423,9 @@ ftpClient.disconnect();
 <hr>
 
 ### await .list()
+
 ```ts
-await ftpClient.list( folder?: string, filters?: OFtpListFilters ) 
+await ftpClient.list( folder?: string, filters?: OFtpListFilters )
   => Promise<OFtpListResponse>;
 
 interface OFtpListFilters {
@@ -426,16 +435,16 @@ interface OFtpListFilters {
 }
 
 export type OFtpListResponse =
-  | SResponseOKObject<OFtpListObject> 
+  | SResponseOKObject<OFtpListObject>
   | SResponseKOObject<OFtpListError>;
 
-interface SResponseOKObject { 
+interface SResponseOKObject {
   status: true;
   count: number; // list.length
   list: OFtpListFile[];
 }
 
-interface SResponseKOObject { 
+interface SResponseKOObject {
   status: false;
   error: {
     msg: string;
@@ -461,7 +470,7 @@ export interface OFtpListFile {
   }
 }
 
-type OFtpListFileType = '-' | 'd' | 'l'; 
+type OFtpListFileType = '-' | 'd' | 'l';
 // 'file' | 'folder' | 'symlink'
 
 export interface OFtpListObject {
@@ -492,10 +501,11 @@ console.log( files );
 ftpClient.disconnect();
 ```
 
-* Filter: `pattern`
+- Filter: `pattern`
 
 `pattern` filter can be a regular expression (most powerful option) or
 a simple glob-like string where `*` will match any number of characters, e.g.
+
 ```js
 foo* => foo, foobar, foobaz
 *bar => bar, foobar, tabbar
@@ -503,6 +513,7 @@ foo* => foo, foobar, foobaz
 ```
 
 response example
+
 ```js
 {
   status: true,
@@ -526,21 +537,22 @@ response example
 <hr>
 
 ### await .move()
+
 ```ts
-await ftpClient.move( filepathFrom: string, filepathTo?: string ) 
+await ftpClient.move( filepathFrom: string, filepathTo?: string )
   => Promise<OFtpFileResponse>;
 
 export type OFtpFileResponse =
-  | SResponseOKObject<OFtpFileObject> 
+  | SResponseOKObject<OFtpFileObject>
   | SResponseKOObject<OFtpFileError>;
 
-interface SResponseOKObject { 
+interface SResponseOKObject {
   status: true;
   filename: string;
   filepath: string;
 }
 
-interface SResponseKOObject { 
+interface SResponseKOObject {
   status: false;
   error: {
     msg: string;
@@ -581,21 +593,22 @@ ftpClient.disconnect();
 <hr>
 
 ### await .delete()
+
 ```ts
-await ftpClient.delete( filepathFrom: string, strict?: boolean ) 
+await ftpClient.delete( filepathFrom: string, strict?: boolean )
   => Promise<OFtpFileResponse>;
 
 export type OFtpFileResponse =
   | SResponseOKObject<OFtpFileObject>
   | SResponseKOObject<OFtpFileError>;
 
-interface SResponseOKObject { 
+interface SResponseOKObject {
   status: true;
   filename: string;
   filepath: string;
 }
 
-interface SResponseKOObject { 
+interface SResponseKOObject {
   status: false;
   error: {
     msg: string;
@@ -636,22 +649,23 @@ ftpClient.disconnect();
 <hr>
 
 ### await .exists()
+
 ```ts
-await ftpClient.exists( filepathFrom: string, disconnectWhenError?: boolean ) 
+await ftpClient.exists( filepathFrom: string, disconnectWhenError?: boolean )
   => Promise<OFtpExistResponse>;
 
 export type OFtpExistResponse =
   | SResponseOKObject<OFtpExistObject>
   | SResponseKOObject<OFtpExistError>;
 
-interface SResponseOKObject { 
+interface SResponseOKObject {
   status: true;
   filename: string;
   filepath: string;
   type: string;
 }
 
-interface SResponseKOObject { 
+interface SResponseKOObject {
   status: false;
   error: {
     msg: string;
@@ -693,21 +707,22 @@ ftpClient.disconnect();
 <hr>
 
 ### await .mkdir()
+
 ```ts
-await ftpClient.mkdir( folder, recursive?: boolean, strict?: boolean ) 
+await ftpClient.mkdir( folder, recursive?: boolean, strict?: boolean )
   => Promise<OFtpFolderResponse>;
 
 export type OFtpFolderResponse =
   | SResponseOKObject<OFtpFolderObject>
   | SResponseKOObject<OFtpFolderError>;
 
-interface SResponseOKObject { 
+interface SResponseOKObject {
   status: true;
   foldername: string;
   folderpath: string;
 }
 
-interface SResponseKOObject { 
+interface SResponseKOObject {
   status: false;
   error: {
     msg: string;
@@ -750,21 +765,22 @@ ftpClient.disconnect();
 <hr>
 
 ### await .rmdir()
+
 ```ts
-await ftpClient.rmdir( folder, recursive?: boolean, strict?: boolean ) 
+await ftpClient.rmdir( folder, recursive?: boolean, strict?: boolean )
   => Promise<OFtpFolderResponse>;
 
 export type OFtpFolderResponse =
   | SResponseOKObject<OFtpFolderObject>
   | SResponseKOObject<OFtpFolderError>;
 
-interface SResponseOKObject { 
+interface SResponseOKObject {
   status: true;
   foldername: string;
   folderpath: string;
 }
 
-interface SResponseKOObject { 
+interface SResponseKOObject {
   status: false;
   error: {
     msg: string;
@@ -803,7 +819,6 @@ console.log( removed );
 
 ftpClient.disconnect();
 ```
-
 
 ## Testing
 

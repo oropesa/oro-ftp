@@ -2,7 +2,6 @@ import fsExtra from 'fs-extra';
 
 import type { OFtpConfig } from '../OFtp.types';
 
-// eslint-disable-next-line unicorn/prefer-module
 export const DIRNAME = __dirname;
 
 export const FTPCONFIG_BAD: OFtpConfig = {
