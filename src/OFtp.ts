@@ -79,7 +79,7 @@ export class OFtp {
 
     const exposedConfig = Ofn.cloneObject(this.#config);
     if (exposedConfig.password) {
-      exposedConfig.password = Array.from({ length: exposedConfig.password.length }).fill('*').join('').substring(0, 5);
+      exposedConfig.password = Array.from({ length: exposedConfig.password.length }).fill('*').join('').slice(0, 5);
     }
 
     const checkResponse = this.#checkFtpConfig('Connect');
