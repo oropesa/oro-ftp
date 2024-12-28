@@ -4,6 +4,7 @@
 - [Installation](#installation)
 - [Example](#example)
 - [Methods](#methods)
+- [Testing](#testing)
 
 ## Overview
 
@@ -59,7 +60,6 @@ console.log( ftpUpload );
 - [await .exists()](#await-exists)
 - [await .mkdir()](#await-mkdir)
 - [await .rmdir()](#await-rmdir)
-- [Testing](#testing)
 
 <hr>
 
@@ -826,17 +826,18 @@ If you want to run `npm run test` in local, first you need to run a ftp server (
 
 ```bash
 # 'stilliard/pure-ftpd' image
-> docker run --name oro-ftp-server \
+> docker run -d --name ORO_FTP_SERVER \
     -p 2221:21 -p 10000-10009:10000-10009 --expose=10000-10009 \
     -e FTP_USER_NAME=oftp_user \
     -e FTP_USER_PASS=oftp_pass \
     -e FTP_USER_HOME=/home/osftp_folder \
     -e FTP_PASSIVE_PORTS=10000:10009 \
-    -e PUBLICHOST=localhost
+    -e PUBLICHOST=localhost \
+    stilliard/pure-ftpd
 ```
 
-Then, you have to declare your own `./test/config.json`, <br>
-<small>You can _copypaste_ it from `./test/config-default.json`</small>
+Then, you have to declare your own `./src/__tests__/config.json`, <br>
+_(Note:_ you can copypaste it from `./src/__tests__/config-default.json`._)_
 
 ```json
 {
@@ -845,4 +846,12 @@ Then, you have to declare your own `./test/config.json`, <br>
   "user": "oftp_user",
   "password": "oftp_pass"
 }
+```
+
+Finally, you can run tests (and coverages)
+
+```shell
+> npm run test
+# or
+> yarn test
 ```
