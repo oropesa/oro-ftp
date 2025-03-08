@@ -20,7 +20,7 @@ To have the same interface using SFTP, you can utilize the OroSFtp class availab
 npm install oro-ftp
 ```
 
-## Example:
+## Example
 
 ```js
 // cjs
