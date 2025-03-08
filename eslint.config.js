@@ -8,7 +8,7 @@ import {
   setEslintPluginUnicorn,
 } from './eslint.config.utils.js';
 
-const allowList = ['dir', 'msg', 'Msg'];
+const allowList = ['dir', 'msg', 'Msg', 'utils'];
 
 export default [
   { ignores: DEFAULT_IGNORES },
