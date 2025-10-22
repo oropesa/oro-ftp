@@ -8,12 +8,17 @@ import {
   setEslintPluginUnicorn,
 } from './eslint.config.utils.js';
 
-const allowList = ['dir', 'msg', 'Msg', 'utils'];
+const allowList = ['dev', 'Dev', 'dir', 'msg', 'Msg', 'args', 'utils'];
 
 export default [
   { ignores: DEFAULT_IGNORES },
   setEslintLanguageOptionsBrowser(),
-  setEslintPluginUnicorn({ allowList }),
+  setEslintPluginUnicorn({
+    allowList,
+    rules: {
+      'unicorn/no-array-sort': 'off',
+    },
+  }),
   setEslintPluginJest(),
   setEslintPluginJestDom(),
   setEslintPluginPrettier(),
